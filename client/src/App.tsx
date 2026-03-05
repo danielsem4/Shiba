@@ -1,44 +1,27 @@
-import { useQuery } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
+import { LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-
-interface HealthResponse {
-  status: string
-  timestamp: string
-}
-
-async function fetchHealth(): Promise<HealthResponse> {
-  const res = await fetch('/api/health')
-  if (!res.ok) throw new Error('Network response was not ok')
-  return res.json()
-}
+import { useAuthStore } from '@/features/auth/stores/authStore'
 
 function App() {
-  const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['health'],
-    queryFn: fetchHealth,
-    enabled: false,
-  })
+  const navigate = useNavigate()
+  const { user, clearAuth } = useAuthStore()
+
+  function handleLogout() {
+    clearAuth()
+    navigate('/login')
+  }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 p-8">
-      <h1 className="text-4xl font-bold tracking-tight">Shiba App</h1>
-      <p className="text-muted-foreground">React 19 + Express + Prisma</p>
-
-      <Button onClick={() => refetch()} disabled={isLoading}>
-        {isLoading ? 'Checking…' : 'Ping /api/health'}
+    <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4 p-8">
+      <h1 className="text-3xl font-semibold text-slate-900">
+        Welcome back{user?.name ? `, ${user.name}` : ''}!
+      </h1>
+      <p className="text-slate-500 text-sm">You are signed in to the Shiba system.</p>
+      <Button variant="outline" onClick={handleLogout} className="mt-4 gap-2">
+        <LogOut className="h-4 w-4" />
+        Sign Out
       </Button>
-
-      {isError && (
-        <p className="text-sm text-destructive">
-          Could not reach the server. Is it running on port 5000?
-        </p>
-      )}
-
-      {data && (
-        <pre className="rounded-md bg-muted px-4 py-3 text-sm">
-          {JSON.stringify(data, null, 2)}
-        </pre>
-      )}
     </main>
   )
 }
