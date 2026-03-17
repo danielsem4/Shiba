@@ -1,17 +1,21 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, Navigate } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { useLogin } from '../hooks/useLogin'
-import { loginSchema, type LoginFormData } from '../schemas/auth.schema'
+import { createLoginSchema, type LoginFormData } from '../schemas/auth.schema'
 import { useAuthStore } from '../stores/authStore'
 
 export function LoginPage() {
+  const { t, i18n } = useTranslation('auth')
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const [showPassword, setShowPassword] = useState(false)
   const { mutate: login, isPending } = useLogin()
+
+  const loginSchema = useMemo(() => createLoginSchema(t), [i18n.language])
 
   const {
     register,
@@ -48,27 +52,19 @@ export function LoginPage() {
           />
         </div>
 
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-slate-900">Sign In</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Enter your credentials to access the system
-          </p>
-        </div>
-
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
 
           {/* Email */}
           <div className="space-y-1.5">
             <label htmlFor="email" className="block text-sm font-medium text-slate-700">
-              Email address
+              {t('login.emailLabel')}
             </label>
             <input
               id="email"
               type="email"
               autoComplete="email"
-              placeholder="you@example.com"
+              placeholder={t('login.emailPlaceholder')}
               disabled={isPending}
               className={inputClass}
               {...register('email')}
@@ -81,14 +77,14 @@ export function LoginPage() {
           {/* Password */}
           <div className="space-y-1.5">
             <label htmlFor="password" className="block text-sm font-medium text-slate-700">
-              Password
+              {t('login.passwordLabel')}
             </label>
             <div className="relative">
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
-                placeholder="••••••••"
+                placeholder={t('login.passwordPlaceholder')}
                 disabled={isPending}
                 className={`${inputClass} pr-10`}
                 {...register('password')}
@@ -97,8 +93,8 @@ export function LoginPage() {
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
                 tabIndex={-1}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
+                className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -116,13 +112,13 @@ export function LoginPage() {
                 className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600"
                 {...register('rememberMe')}
               />
-              Remember me
+              {t('login.rememberMe')}
             </label>
             <Link
               to="/forgot-password"
               className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
             >
-              Forgot password?
+              {t('login.forgotPassword')}
             </Link>
           </div>
 
@@ -132,7 +128,7 @@ export function LoginPage() {
             disabled={isPending}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium h-10"
           >
-            {isPending ? 'Signing in…' : 'Sign In'}
+            {isPending ? t('login.submitting') : t('login.submit')}
           </Button>
 
         </form>

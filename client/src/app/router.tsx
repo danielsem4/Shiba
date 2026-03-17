@@ -2,7 +2,9 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { ProtectedRoute } from '@/components/shared/ProtectedRoute'
 import { GuestRoute } from '@/components/shared/GuestRoute'
-import App from '@/App'
+import { AppLayout } from '@/components/layout/AppLayout'
+import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage'
+import App from '@/app/App'
 
 export const router = createBrowserRouter([
   {
@@ -22,18 +24,19 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        path: '/home',
-        element: <App />,
+        element: <AppLayout />,
+        children: [
+          {
+            path: '/home',
+            element: <App />,
+          },
+        ],
       },
     ],
   },
   {
     path: '/forgot-password',
-    element: (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <p className="text-slate-500 text-sm">Forgot Password — Coming Soon</p>
-      </div>
-    ),
+    element: <ForgotPasswordPage />,
   },
   {
     path: '*',
