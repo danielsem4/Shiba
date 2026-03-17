@@ -1,90 +1,139 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+}
+
+:root {
+  /* Surface — Paper White #FDFDFC */
+  --background: 60 20% 99%;
+  /* Typography — Slate Text #475569 */
+  --foreground: 215 19% 35%;
+
+  /* Cards — Pure White #FFFFFF */
+  --card: 0 0% 100%;
+  --card-foreground: 215 19% 35%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 215 19% 35%;
+
+  /* Primary — Modern Blue #4F46E5 */
+  --primary: 243 75% 59%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary — light Midnight Indigo tint */
+  --secondary: 244 40% 95%;
+  --secondary-foreground: 244 47% 20%;
+
+  /* Muted */
+  --muted: 220 14% 96%;
+  --muted-foreground: 215 16% 47%;
+
+  /* Accent — Serene Mint #0D9488 */
+  --accent: 174 84% 32%;
+  --accent-foreground: 0 0% 100%;
+
+  /* Destructive — Wine Red #991B1B */
+  --destructive: 0 70% 35%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Borders — Soft Border #E5E7EB */
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 243 75% 59%;
+
+  /* Charts */
+  --chart-1: 243 75% 59%;
+  --chart-2: 174 84% 32%;
+  --chart-3: 23 82% 31%;
+  --chart-4: 163 88% 20%;
+  --chart-5: 0 70% 35%;
+
+  /* Radius — 24px friendly high-end */
+  --radius: 1.5rem;
+}
+
+.dark {
+  /* Dark surface — deep Midnight Indigo */
+  --background: 244 47% 8%;
+  --foreground: 60 20% 99%;
+
+  --card: 244 47% 12%;
+  --card-foreground: 60 20% 99%;
+  --popover: 244 47% 12%;
+  --popover-foreground: 60 20% 99%;
+
+  /* Primary — slightly brighter Modern Blue */
+  --primary: 243 75% 65%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 244 35% 18%;
+  --secondary-foreground: 60 20% 99%;
+
+  --muted: 244 35% 16%;
+  --muted-foreground: 215 16% 60%;
+
+  /* Accent — brighter Serene Mint on dark */
+  --accent: 174 84% 38%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 70% 42%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 244 35% 20%;
+  --input: 244 35% 20%;
+  --ring: 243 75% 65%;
+
+  --chart-1: 243 75% 65%;
+  --chart-2: 174 84% 42%;
+  --chart-3: 23 82% 45%;
+  --chart-4: 163 88% 35%;
+  --chart-5: 0 70% 50%;
+}
 
 @layer base {
-  :root {
-    /* Surface — Paper White #FDFDFC */
-    --background: 60 20% 99%;
-    /* Typography — Slate Text #475569 */
-    --foreground: 215 19% 35%;
-
-    /* Cards — Pure White #FFFFFF */
-    --card: 0 0% 100%;
-    --card-foreground: 215 19% 35%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 19% 35%;
-
-    /* Primary — Modern Blue #4F46E5 */
-    --primary: 243 75% 59%;
-    --primary-foreground: 0 0% 100%;
-
-    /* Secondary — light Midnight Indigo tint */
-    --secondary: 244 40% 95%;
-    --secondary-foreground: 244 47% 20%;
-
-    /* Muted */
-    --muted: 220 14% 96%;
-    --muted-foreground: 215 16% 47%;
-
-    /* Accent — Serene Mint #0D9488 */
-    --accent: 174 84% 32%;
-    --accent-foreground: 0 0% 100%;
-
-    /* Destructive — Wine Red #991B1B */
-    --destructive: 0 70% 35%;
-    --destructive-foreground: 0 0% 100%;
-
-    /* Borders — Soft Border #E5E7EB */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 243 75% 59%;
-
-    /* Charts */
-    --chart-1: 243 75% 59%;
-    --chart-2: 174 84% 32%;
-    --chart-3: 23 82% 31%;
-    --chart-4: 163 88% 20%;
-    --chart-5: 0 70% 35%;
-
-    /* Radius — 24px friendly high-end */
-    --radius: 1.5rem
+  * {
+    @apply border-border;
   }
-  .dark {
-    /* Dark surface — deep Midnight Indigo */
-    --background: 244 47% 8%;
-    --foreground: 60 20% 99%;
-
-    --card: 244 47% 12%;
-    --card-foreground: 60 20% 99%;
-    --popover: 244 47% 12%;
-    --popover-foreground: 60 20% 99%;
-
-    /* Primary — slightly brighter Modern Blue */
-    --primary: 243 75% 65%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 244 35% 18%;
-    --secondary-foreground: 60 20% 99%;
-
-    --muted: 244 35% 16%;
-    --muted-foreground: 215 16% 60%;
-
-    /* Accent — brighter Serene Mint on dark */
-    --accent: 174 84% 38%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 70% 42%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 244 35% 20%;
-    --input: 244 35% 20%;
-    --ring: 243 75% 65%;
-
-    --chart-1: 243 75% 65%;
-    --chart-2: 174 84% 42%;
-    --chart-3: 23 82% 45%;
-    --chart-4: 163 88% 35%;
-    --chart-5: 0 70% 50%
+  body {
+    @apply bg-background text-foreground;
   }
 }

@@ -1,0 +1,14 @@
+{
+  "appName": "Shiba",
+  "nav": {
+    "dashboard": "Dashboard"
+  },
+  "home": {
+    "welcomeBack": "Welcome back, {{name}}!",
+    "welcomeBackDefault": "Welcome back!",
+    "signedIn": "You are signed in to the Shiba system.",
+    "signOut": "Sign Out"
+  },
+  "comingSoon": "{{feature}} — Coming Soon",
+  "forgotPassword": "Forgot Password"
+}

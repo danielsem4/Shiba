@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/features/auth/stores/authStore'
 
 function App() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user, clearAuth } = useAuthStore()
 
@@ -13,16 +15,16 @@ function App() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4 p-8">
+    <div className="flex flex-col items-center justify-center gap-4 py-16">
       <h1 className="text-3xl font-semibold text-slate-900">
-        Welcome back{user?.name ? `, ${user.name}` : ''}!
+        {user?.name ? t('home.welcomeBack', { name: user.name }) : t('home.welcomeBackDefault')}
       </h1>
-      <p className="text-slate-500 text-sm">You are signed in to the Shiba system.</p>
+      <p className="text-slate-500 text-sm">{t('home.signedIn')}</p>
       <Button variant="outline" onClick={handleLogout} className="mt-4 gap-2">
         <LogOut className="h-4 w-4" />
-        Sign Out
+        {t('home.signOut')}
       </Button>
-    </main>
+    </div>
   )
 }
 

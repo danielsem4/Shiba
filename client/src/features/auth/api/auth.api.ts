@@ -1,11 +1,6 @@
 import { apiClient } from '@/lib/apiClient'
+import type { AuthUser } from '../types/auth.types'
 import type { LoginFormData } from '../schemas/auth.schema'
-
-export interface AuthUser {
-  id: string
-  email: string
-  name: string
-}
 
 export interface LoginResponse {
   token: string

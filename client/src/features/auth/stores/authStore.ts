@@ -1,11 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-
-export interface AuthUser {
-  id: string
-  email: string
-  name: string
-}
+import type { AuthUser } from '../types/auth.types'
 
 interface AuthState {
   token: string | null

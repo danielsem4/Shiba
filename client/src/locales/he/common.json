@@ -1,0 +1,14 @@
+{
+  "appName": "שיבא",
+  "nav": {
+    "dashboard": "לוח בקרה"
+  },
+  "home": {
+    "welcomeBack": "!ברוך שובך, {{name}}",
+    "welcomeBackDefault": "!ברוך שובך",
+    "signedIn": "אתה מחובר למערכת שיבא.",
+    "signOut": "התנתק"
+  },
+  "comingSoon": "{{feature}} — בקרוב",
+  "forgotPassword": "שכחתי סיסמה"
+}
