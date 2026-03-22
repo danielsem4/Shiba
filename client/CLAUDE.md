@@ -113,13 +113,15 @@ Use path aliases (e.g., @/lib/apiClient).
 Features expose public API via index.ts only. Cross-feature imports must go through index.ts. No deep imports into another feature's internals.
 
 11. Internationalization (i18n) Rules
-All user-facing text MUST come from translation files — never hardcode strings in components or pages.
+STRICT ZERO-HARDCODED-TEXT POLICY: No plain text may ever appear directly in code. Every single user-facing string — including labels, titles, placeholders, error messages, table headers, button text, toast messages, and mock/seed data that renders in the UI — MUST come from translation files via `useTranslation` or the `t()` function. This applies to components, pages, hooks, and mock API data alike. There are NO exceptions.
 
 Translations live in src/locales/{lng}/{namespace}.json. Use `common` namespace for shared text and feature-specific namespaces (e.g., `auth`) for feature text.
 
 Access translations via the `useTranslation` hook: `const { t } = useTranslation('namespace')`.
 
 For Zod schemas that need translated messages, use a factory function that accepts `t` (see `createLoginSchema` pattern).
+
+For mock/seed data that contains user-facing text (e.g., entity names), use translation keys so the data renders correctly in both languages.
 
 RTL: Hebrew is RTL. Use logical CSS properties (`start`/`end` instead of `left`/`right`). The `dir` attribute on `<html>` is set automatically by `src/lib/i18n.ts` on language change.
 

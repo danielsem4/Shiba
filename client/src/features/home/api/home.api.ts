@@ -1,11 +1,13 @@
-import type { HomeData, ViewMode } from '../types/home.types'
+import type { HomeDataRaw, ViewMode } from '../types/home.types'
 
 // Mock data — replace with real API calls when backend is ready
 // e.g. const response = await apiClient.get<HomeData>('/home/stats', { params: { week, viewMode } })
+// University names use i18n translation keys (e.g. "universities.telAviv") that are resolved in the hook layer.
+// When the real API is connected, names will come directly from the backend and won't need translation.
 export async function fetchHomeData(
   week: number,
   viewMode: ViewMode
-): Promise<HomeData> {
+): Promise<HomeDataRaw> {
   const isYearly = viewMode === 'yearly'
 
   return {
@@ -18,28 +20,28 @@ export async function fetchHomeData(
     universityRows: [
       {
         id: 1,
-        name: 'אוניברסיטת תל אביב',
+        nameKey: 'universities.telAviv',
         totalStudents: isYearly ? 450 : 85,
         morningRotations: isYearly ? 12 : 3,
         eveningRotations: isYearly ? 8 : 2,
       },
       {
         id: 2,
-        name: 'אוניברסיטת רייכמן',
+        nameKey: 'universities.reichman',
         totalStudents: isYearly ? 300 : 60,
         morningRotations: isYearly ? 10 : 2,
         eveningRotations: isYearly ? 6 : 1,
       },
       {
         id: 3,
-        name: 'אוניברסיטת בן גוריון',
+        nameKey: 'universities.benGurion',
         totalStudents: isYearly ? 350 : 50,
         morningRotations: isYearly ? 8 : 2,
         eveningRotations: isYearly ? 4 : 1,
       },
       {
         id: 4,
-        name: 'הטכניון',
+        nameKey: 'universities.technion',
         totalStudents: isYearly ? 330 : 35,
         morningRotations: isYearly ? 9 : 1,
         eveningRotations: isYearly ? 5 : 0,

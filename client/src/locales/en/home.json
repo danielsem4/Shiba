@@ -1,5 +1,11 @@
 {
   "pageTitle": "Home",
+  "universities": {
+    "telAviv": "Tel Aviv University",
+    "reichman": "Reichman University",
+    "benGurion": "Ben-Gurion University",
+    "technion": "Technion"
+  },
   "cards": {
     "activeStudents": "Active Students",
     "morningRotations": "Morning Rotations",
