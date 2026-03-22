@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { useAuthStore } from '@/features/auth/stores/authStore'
+import { useIsAdmin } from '@/hooks/useIsAdmin'
 import type { NavItem } from '@/components/layout/Sidebar'
 
 export function AppLayout() {
@@ -24,7 +25,7 @@ export function AppLayout() {
     { label: t('nav.settings'), path: '/settings', icon: Settings },
   ]
 
-  const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
+  const isAdmin = useIsAdmin()
 
   const navItems: NavItem[] = isAdmin
     ? [

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GraduationCap, Sun, Moon, Building2 } from 'lucide-react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { useAuthStore } from '@/features/auth/stores/authStore'
+import { useIsAdmin } from '@/hooks/useIsAdmin'
 import { useHomeStats } from '../hooks/useHomeStats'
 import { StatsCard } from '../components/StatsCard'
 import { WeekSelector } from '../components/WeekSelector'
@@ -11,8 +11,7 @@ import type { ViewMode } from '../types/home.types'
 
 export function HomePage() {
   const { t } = useTranslation('home')
-  const user = useAuthStore((state) => state.user)
-  const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
+  const isAdmin = useIsAdmin()
 
   const [selectedWeek, setSelectedWeek] = useState(1)
   const [viewMode, setViewMode] = useState<ViewMode>('weekly')
@@ -25,21 +24,25 @@ export function HomePage() {
 
   const cards = [
     {
+      key: 'activeStudents',
       title: t('cards.activeStudents'),
       value: data.stats.activeStudents,
       icon: GraduationCap,
     },
     {
+      key: 'morningRotations',
       title: t('cards.morningRotations'),
       value: data.stats.morningRotations,
       icon: Sun,
     },
     {
+      key: 'eveningRotations',
       title: t('cards.eveningRotations'),
       value: data.stats.eveningRotations,
       icon: Moon,
     },
     {
+      key: 'activeDepartments',
       title: t('cards.activeDepartments'),
       value: data.stats.activeDepartments,
       icon: Building2,
@@ -52,7 +55,7 @@ export function HomePage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => (
           <StatsCard
-            key={card.title}
+            key={card.key}
             title={card.title}
             value={card.value}
             icon={card.icon}
