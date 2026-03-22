@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getToken, clearTokenFromInterceptor } from '@/features/auth/context/AuthContext'
 
 export const apiClient = axios.create({
   baseURL: import.meta.env['VITE_API_URL'] ?? '/api',
@@ -8,17 +9,9 @@ export const apiClient = axios.create({
 })
 
 apiClient.interceptors.request.use((config) => {
-  const raw = localStorage.getItem('auth-storage')
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw) as { state?: { token?: string } }
-      const token = parsed.state?.token
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`
-      }
-    } catch {
-      // ignore malformed storage
-    }
+  const token = getToken()
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
   return config
 })
@@ -27,7 +20,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      localStorage.removeItem('auth-storage')
+      clearTokenFromInterceptor()
       window.location.href = '/login'
     }
     return Promise.reject(error)

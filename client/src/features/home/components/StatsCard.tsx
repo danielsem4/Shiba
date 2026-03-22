@@ -1,4 +1,4 @@
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { LucideIcon } from 'lucide-react'
 
 interface StatsCardProps {
@@ -9,17 +9,15 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, icon: Icon }: StatsCardProps) {
   return (
-    <Card>
-      <CardContent className="flex items-center gap-4 p-6">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-          <Icon className="h-6 w-6 text-primary" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm text-muted-foreground">{title}</p>
-          <p className="text-2xl font-bold text-foreground">
-            {value.toLocaleString()}
-          </p>
-        </div>
+    <Card className="gap-2">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
+        <Icon className="h-5 w-5 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <p className="text-2xl font-bold">{value.toLocaleString()}</p>
       </CardContent>
     </Card>
   )

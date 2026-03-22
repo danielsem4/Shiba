@@ -9,13 +9,13 @@ import {
   Users,
 } from 'lucide-react'
 import { Sidebar } from '@/components/layout/Sidebar'
-import { useAuthStore } from '@/features/auth/stores/authStore'
+import { useAuth } from '@/features/auth'
 import { useIsAdmin } from '@/hooks/useIsAdmin'
 import type { NavItem } from '@/components/layout/Sidebar'
 
 export function AppLayout() {
   const { t } = useTranslation()
-  const user = useAuthStore((state) => state.user)
+  const { user } = useAuth()
 
   const baseNavItems: NavItem[] = [
     { label: t('nav.home'), path: '/home', icon: Home },

@@ -1,6 +1,6 @@
-import { useAuthStore } from '@/features/auth/stores/authStore'
+import { useAuth } from '@/features/auth'
 
 export function useIsAdmin() {
-  const user = useAuthStore((state) => state.user)
+  const { user } = useAuth()
   return user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN'
 }

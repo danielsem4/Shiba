@@ -16,36 +16,34 @@ interface UniversityTableProps {
 export function UniversityTable({ rows }: UniversityTableProps) {
   const { t } = useTranslation('home')
 
-  if (rows.length === 0) {
-    return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        {t('table.noData')}
-      </p>
-    )
-  }
-
   return (
-    <div className="rounded-lg border border-border">
-      <Table>
-        <TableHeader>
+    <Table>
+      <TableHeader>
+        <TableRow className="bg-muted/50 hover:bg-muted/50 border-b border-border">
+          <TableHead className="font-bold text-foreground text-center">{t('table.institutionName')}</TableHead>
+          <TableHead className="font-bold text-foreground text-center">{t('table.totalStudents')}</TableHead>
+          <TableHead className="font-bold text-foreground text-center">{t('table.morningRotations')}</TableHead>
+          <TableHead className="font-bold text-foreground text-center">{t('table.eveningRotations')}</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.length === 0 ? (
           <TableRow>
-            <TableHead>{t('table.institutionName')}</TableHead>
-            <TableHead>{t('table.totalStudents')}</TableHead>
-            <TableHead>{t('table.morningRotations')}</TableHead>
-            <TableHead>{t('table.eveningRotations')}</TableHead>
+            <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
+              {t('table.noData')}
+            </TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell className="font-medium">{row.name}</TableCell>
-              <TableCell>{row.totalStudents.toLocaleString()}</TableCell>
-              <TableCell>{row.morningRotations}</TableCell>
-              <TableCell>{row.eveningRotations}</TableCell>
+        ) : (
+          rows.map((row) => (
+            <TableRow key={row.id} className="hover:bg-accent/50 transition-colors border-b border-border">
+              <TableCell className="font-medium text-foreground text-center">{row.name}</TableCell>
+              <TableCell className="text-muted-foreground text-center">{row.totalStudents.toLocaleString()}</TableCell>
+              <TableCell className="text-muted-foreground text-center">{row.morningRotations}</TableCell>
+              <TableCell className="text-muted-foreground text-center">{row.eveningRotations}</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          ))
+        )}
+      </TableBody>
+    </Table>
   )
 }

@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GraduationCap, Sun, Moon, Building2 } from 'lucide-react'
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useIsAdmin } from '@/hooks/useIsAdmin'
 import { useHomeStats } from '../hooks/useHomeStats'
@@ -64,12 +71,31 @@ export function HomePage() {
       </div>
 
       {/* Table Section */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-foreground">
-          {viewMode === 'weekly' ? t('table.title') : t('table.yearlyTitle')}
-        </h2>
-
-        <div className="flex items-center gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            {viewMode === 'weekly' ? t('table.title') : t('table.yearlyTitle')}
+          </CardTitle>
+          {isAdmin && (
+            <CardAction>
+              <ToggleGroup
+                type="single"
+                value={viewMode}
+                onValueChange={(val) => {
+                  if (val) setViewMode(val as ViewMode)
+                }}
+              >
+                <ToggleGroupItem value="weekly" aria-label={t('viewToggle.weekly')}>
+                  {t('viewToggle.weekly')}
+                </ToggleGroupItem>
+                <ToggleGroupItem value="yearly" aria-label={t('viewToggle.yearly')}>
+                  {t('viewToggle.yearly')}
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </CardAction>
+          )}
+        </CardHeader>
+        <CardContent className="space-y-4">
           {viewMode === 'weekly' && (
             <WeekSelector
               weeks={data.weeks}
@@ -77,27 +103,9 @@ export function HomePage() {
               onChange={setSelectedWeek}
             />
           )}
-
-          {isAdmin && (
-            <ToggleGroup
-              type="single"
-              value={viewMode}
-              onValueChange={(val) => {
-                if (val) setViewMode(val as ViewMode)
-              }}
-            >
-              <ToggleGroupItem value="weekly" aria-label={t('viewToggle.weekly')}>
-                {t('viewToggle.weekly')}
-              </ToggleGroupItem>
-              <ToggleGroupItem value="yearly" aria-label={t('viewToggle.yearly')}>
-                {t('viewToggle.yearly')}
-              </ToggleGroupItem>
-            </ToggleGroup>
-          )}
-        </div>
-
-        <UniversityTable rows={data.universityRows} />
-      </div>
+          <UniversityTable rows={data.universityRows} />
+        </CardContent>
+      </Card>
     </div>
   )
 }
