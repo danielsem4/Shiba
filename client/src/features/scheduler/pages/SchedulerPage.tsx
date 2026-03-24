@@ -17,6 +17,7 @@ import { GridDragOverlay } from '../components/grid/GridDragOverlay'
 import { SchedulerToolbar } from '../components/SchedulerToolbar'
 import { SchedulerFilters } from '../components/SchedulerFilters'
 import { AssignmentLegend } from '../components/AssignmentLegend'
+import { ManualAssignmentDialog } from '../components/dialogs/ManualAssignmentDialog'
 import type { Assignment } from '../types/scheduler.types'
 
 export default function SchedulerPage() {
@@ -26,6 +27,7 @@ export default function SchedulerPage() {
     selectedUniversities,
     selectedShift,
     selectedYear,
+    activeDialog,
     activeDragId,
     setActiveDragId,
   } = useSchedulerStore()
@@ -129,7 +131,7 @@ export default function SchedulerPage() {
           ) : null}
         </DragOverlay>
       </DndContext>
-      {/* Dialogs will be added in Tasks 12-14 */}
+      {activeDialog === 'create' && <ManualAssignmentDialog />}
     </div>
   )
 }
