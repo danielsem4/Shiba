@@ -21,13 +21,16 @@ export const assignmentRouter = Router();
 
 assignmentRouter.use(authenticate);
 
+// Static paths must be registered before dynamic /:id paths
 assignmentRouter.get('/', controller.getByAcademicYear);
-assignmentRouter.get('/:id', controller.getById);
 assignmentRouter.post('/', validateRequest(createAssignmentSchema), controller.create);
+assignmentRouter.post('/import', validateRequest(importAssignmentsSchema), controller.importAssignments);
+
+// Dynamic :id paths
+assignmentRouter.get('/:id', controller.getById);
 assignmentRouter.patch('/:id', validateRequest(updateAssignmentSchema), controller.update);
 assignmentRouter.patch('/:id/move', validateRequest(moveAssignmentSchema), controller.move);
 assignmentRouter.delete('/:id', controller.remove);
-assignmentRouter.post('/import', validateRequest(importAssignmentsSchema), controller.importAssignments);
 assignmentRouter.post('/:id/students', validateRequest(addStudentSchema), controller.addStudent);
-assignmentRouter.delete('/:id/students/:studentId', controller.removeStudent);
 assignmentRouter.post('/:id/students/import', validateRequest(importStudentsSchema), controller.importStudents);
+assignmentRouter.delete('/:id/students/:studentId', controller.removeStudent);
