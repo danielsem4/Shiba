@@ -52,7 +52,8 @@ function normalizeStudentRow(
   headers: string[],
 ): Record<string, unknown> {
   const normalized = headers.map((h) => h.trim())
-  const isHebrew = STUDENT_COLUMNS_HE.every((col) => normalized.includes(col))
+  const hebrewKeys = Object.keys(HE_TO_EN_MAP)
+  const isHebrew = hebrewKeys.some((col) => normalized.includes(col))
 
   if (!isHebrew) return row
 
