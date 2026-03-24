@@ -42,9 +42,13 @@ export default function SchedulerPage() {
     selectedShift,
     selectedYear,
   })
-  const { data: constraints } = useConstraints(
-    currentYear ? new Date(currentYear.startDate).getFullYear() : null,
-  )
+  const constraintYears = currentYear
+    ? [...new Set([
+        new Date(currentYear.startDate).getFullYear(),
+        new Date(currentYear.endDate).getFullYear(),
+      ])]
+    : null
+  const { data: constraints } = useConstraints(constraintYears)
   const weeks = useAcademicYearWeeks(currentYear)
   const gridData = useGridData(assignments, weeks, {
     selectedUniversities,
@@ -107,7 +111,6 @@ export default function SchedulerPage() {
         departmentId,
         startDate: targetWeek.startDate.toISOString(),
         endDate: targetWeek.endDate.toISOString(),
-        shiftType: assignment.shiftType,
       },
     })
   }

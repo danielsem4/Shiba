@@ -16,7 +16,7 @@ export function useUpdateAssignment() {
       toast.success(t('toast.assignmentUpdated'))
     },
     onError: () => {
-      toast.error(t('toast.importFailed'))
+      toast.error(t('toast.updateFailed'))
     },
   })
 }

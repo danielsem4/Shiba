@@ -66,7 +66,7 @@ export function ManualAssignmentDialog() {
 
   async function onSubmit(data: AssignmentFormData) {
     if (!academicYearId) {
-      toast.error(t('dialogs.validation.departmentRequired'))
+      toast.error(t('dialogs.validation.academicYearRequired'))
       return
     }
 

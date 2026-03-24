@@ -14,7 +14,7 @@ export function useDeleteAssignment() {
       toast.success(t('toast.assignmentDeleted'))
     },
     onError: () => {
-      toast.error(t('toast.importFailed'))
+      toast.error(t('toast.deleteFailed'))
     },
   })
 }

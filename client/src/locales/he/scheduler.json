@@ -92,7 +92,8 @@
       "firstNameRequired": "יש להזין שם פרטי",
       "lastNameRequired": "יש להזין שם משפחה",
       "nationalIdRequired": "יש להזין ת.ז.",
-      "emailInvalid": "כתובת אימייל לא תקינה"
+      "emailInvalid": "כתובת אימייל לא תקינה",
+      "academicYearRequired": "יש לבחור שנת לימודים תחילה"
     }
   },
   "toast": {
@@ -101,6 +102,9 @@
     "assignmentDeleted": "השיבוץ נמחק",
     "assignmentMoved": "השיבוץ הועבר",
     "moveFailed": "ההעברה נכשלה",
+    "createFailed": "יצירת השיבוץ נכשלה",
+    "updateFailed": "עדכון השיבוץ נכשל",
+    "deleteFailed": "מחיקת השיבוץ נכשלה",
     "importSuccess": "{{count}} שיבוצים יובאו",
     "importFailed": "הייבוא נכשל",
     "studentAdded": "סטודנט נוסף",

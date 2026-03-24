@@ -4,7 +4,7 @@ import type { DepartmentConstraint, IronConstraint, Holiday } from '@prisma/clie
 export interface IConstraintRepository {
   findDepartmentConstraints(): Promise<(DepartmentConstraint & { department: { id: number; name: string } })[]>;
   findIronConstraints(activeOnly?: boolean): Promise<IronConstraint[]>;
-  findHolidays(year: number): Promise<Holiday[]>;
+  findHolidays(years: number[]): Promise<Holiday[]>;
 }
 
 export class ConstraintRepository implements IConstraintRepository {
@@ -20,9 +20,9 @@ export class ConstraintRepository implements IConstraintRepository {
     });
   }
 
-  async findHolidays(year: number): Promise<Holiday[]> {
+  async findHolidays(years: number[]): Promise<Holiday[]> {
     return prisma.holiday.findMany({
-      where: { year },
+      where: { year: { in: years } },
       orderBy: { date: 'asc' },
     });
   }

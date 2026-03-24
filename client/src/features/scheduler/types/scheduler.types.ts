@@ -125,7 +125,6 @@ export interface MoveAssignmentDto {
   departmentId: number
   startDate: string
   endDate: string
-  shiftType: ShiftType
 }
 
 export interface AssignmentStudent {

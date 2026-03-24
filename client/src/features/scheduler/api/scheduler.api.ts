@@ -44,9 +44,9 @@ export async function fetchUniversities() {
   return data
 }
 
-export async function fetchConstraints(year: number) {
+export async function fetchConstraints(years: number[]) {
   const { data } = await apiClient.get<ConstraintsResponse>('/constraints', {
-    params: { year },
+    params: { year: years.join(',') },
   })
   return data
 }

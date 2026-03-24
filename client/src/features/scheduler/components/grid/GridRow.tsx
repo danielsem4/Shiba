@@ -33,8 +33,11 @@ export function GridRow({
       {weeks.map((week) => {
         const assignments =
           gridData.get(department.id)?.get(week.weekNumber) ?? []
-        const blockKey = `${department.id}-${week.weekNumber}`
-        const blockReason = blockedCells.get(blockKey)
+        // Check department-specific blocks first, then hospital-wide holiday blocks
+        const deptBlockKey = `dept:${department.id}:week:${week.weekNumber}`
+        const holidayBlockKey = `holiday:week:${week.weekNumber}`
+        const blockReason =
+          blockedCells.get(deptBlockKey) ?? blockedCells.get(holidayBlockKey)
 
         return (
           <GridCell

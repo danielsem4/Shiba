@@ -15,7 +15,7 @@ export function useCreateAssignment() {
       toast.success(t('toast.assignmentCreated'))
     },
     onError: () => {
-      toast.error(t('toast.importFailed'))
+      toast.error(t('toast.createFailed'))
     },
   })
 }

@@ -92,7 +92,8 @@
       "firstNameRequired": "First name is required",
       "lastNameRequired": "Last name is required",
       "nationalIdRequired": "National ID is required",
-      "emailInvalid": "Invalid email address"
+      "emailInvalid": "Invalid email address",
+      "academicYearRequired": "Please select an academic year first"
     }
   },
   "toast": {
@@ -101,6 +102,9 @@
     "assignmentDeleted": "Assignment deleted",
     "assignmentMoved": "Assignment moved",
     "moveFailed": "Move failed",
+    "createFailed": "Failed to create assignment",
+    "updateFailed": "Failed to update assignment",
+    "deleteFailed": "Failed to delete assignment",
     "importSuccess": "{{count}} assignments imported",
     "importFailed": "Import failed",
     "studentAdded": "Student added",
