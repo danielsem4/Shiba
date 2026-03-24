@@ -2,6 +2,7 @@
   "appName": "שיבא",
   "nav": {
     "home": "דף הבית",
+    "scheduler": "לוח שיבוצים",
     "assignments": "לוח שיבוצים",
     "constraints": "אילוצים",
     "statistics": "סטטיסטיקות",
