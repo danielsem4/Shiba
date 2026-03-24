@@ -1,6 +1,7 @@
 import { apiClient } from '@/lib/apiClient'
 import type {
   Assignment,
+  AssignmentDetail,
   Department,
   AcademicYear,
   University,
@@ -25,6 +26,11 @@ export async function fetchAssignments(
     params.shiftType = filters.selectedShift.toUpperCase()
   if (filters?.selectedYear) params.yearInProgram = filters.selectedYear
   const { data } = await apiClient.get<Assignment[]>('/assignments', { params })
+  return data
+}
+
+export async function fetchAssignmentById(id: number) {
+  const { data } = await apiClient.get<AssignmentDetail>(`/assignments/${id}`)
   return data
 }
 

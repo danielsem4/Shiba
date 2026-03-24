@@ -19,6 +19,7 @@ import { SchedulerFilters } from '../components/SchedulerFilters'
 import { AssignmentLegend } from '../components/AssignmentLegend'
 import { ManualAssignmentDialog } from '../components/dialogs/ManualAssignmentDialog'
 import { ExcelImportDialog } from '../components/dialogs/ExcelImportDialog'
+import { EditAssignmentDialog } from '../components/dialogs/EditAssignmentDialog'
 import type { Assignment } from '../types/scheduler.types'
 
 export default function SchedulerPage() {
@@ -134,6 +135,7 @@ export default function SchedulerPage() {
       </DndContext>
       {activeDialog === 'create' && <ManualAssignmentDialog />}
       {activeDialog === 'import' && <ExcelImportDialog />}
+      {activeDialog === 'edit' && <EditAssignmentDialog />}
     </div>
   )
 }

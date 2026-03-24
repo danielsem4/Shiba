@@ -128,6 +128,17 @@ export interface MoveAssignmentDto {
   shiftType: ShiftType
 }
 
+export interface AssignmentStudent {
+  id: number
+  assignmentId: number
+  studentId: number
+  student: Student
+}
+
+export interface AssignmentDetail extends Assignment {
+  students: AssignmentStudent[]
+}
+
 export interface CreateStudentDto {
   firstName: string
   lastName: string
