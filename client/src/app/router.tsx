@@ -8,6 +8,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { HomePage } from '@/features/home'
 import { SettingsPage } from '@/features/settings'
 import { SchedulerPage } from '@/features/scheduler'
+import { ConstraintsPage } from '@/features/constraints'
 
 export const router = createBrowserRouter([
   {
@@ -48,6 +49,10 @@ export const router = createBrowserRouter([
                 <SchedulerPage />
               </Suspense>
             ),
+          },
+          {
+            path: '/constraints',
+            element: <ConstraintsPage />,
           },
         ],
       },
