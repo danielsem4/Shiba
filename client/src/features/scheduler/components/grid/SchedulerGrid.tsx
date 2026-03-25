@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { GridHeader } from './GridHeader'
 import { GridRow } from './GridRow'
 import type {
@@ -20,15 +21,18 @@ export function SchedulerGrid({
   gridData,
   blockedCells,
 }: SchedulerGridProps) {
+  const { i18n } = useTranslation()
+  const dir = i18n.dir()
+
   return (
     <div
-      className="overflow-auto max-h-[calc(100vh-280px)] border border-border rounded-lg"
-      dir="rtl"
+      className="flex-1 min-h-0 w-full overflow-auto border border-border rounded-lg"
+      dir={dir}
     >
       <div
-        className="grid gap-px bg-border"
+        className="grid gap-px bg-border w-full min-w-fit"
         style={{
-          gridTemplateColumns: `200px repeat(${weeks.length}, 160px)`,
+          gridTemplateColumns: `minmax(140px, 200px) repeat(${weeks.length}, minmax(200px, 1fr))`,
         }}
       >
         <GridHeader weeks={weeks} />

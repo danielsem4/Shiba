@@ -35,7 +35,7 @@ export function GridDragOverlay({ assignment }: GridDragOverlayProps) {
         borderInlineStartColor: universityColor,
       }}
       className={cn(
-        'w-[140px] rounded-lg border-s-4 border border-border bg-white p-2 text-xs',
+        'w-[170px] rounded-lg border-s-4 border border-border bg-white p-2.5 text-sm',
         'shadow-xl scale-105 opacity-90 pointer-events-none',
       )}
     >
@@ -44,7 +44,7 @@ export function GridDragOverlay({ assignment }: GridDragOverlayProps) {
           {assignment.universityName}
         </span>
         <span
-          className="shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium text-white"
+          className="shrink-0 rounded-full px-1.5 py-0.5 text-xs font-medium text-white"
           style={{ backgroundColor: typeBadgeBg }}
         >
           {isGroup ? t('card.group') : t('card.elective')}
@@ -70,7 +70,7 @@ export function GridDragOverlay({ assignment }: GridDragOverlayProps) {
         </span>
       </div>
 
-      <div className="mt-1 text-[#1E2A5E]/60 text-[10px]">
+      <div className="mt-1 text-[#1E2A5E]/60 text-xs">
         {assignment.studentCount
           ? `${assignment.studentCount}`
           : t('card.noStudents')}

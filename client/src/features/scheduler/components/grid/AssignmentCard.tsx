@@ -44,6 +44,7 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
   const handleClick = (e: React.MouseEvent) => {
     // Don't open dialog if we're dragging
     if (transform) return
+    console.log('Card clicked:', assignment.id, assignment.universityName)
     e.stopPropagation()
     useSchedulerStore.getState().openDialog('edit', assignment.id)
   }
@@ -56,7 +57,7 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
         borderInlineStartColor: universityColor,
       }}
       className={cn(
-        'rounded-lg border-s-4 p-2 text-xs cursor-grab active:cursor-grabbing select-none',
+        'rounded-lg border-s-4 p-2.5 text-sm cursor-pointer select-none',
         'transition-shadow hover:shadow-md',
         assignment.status === 'APPROVED' && 'bg-white opacity-100 border border-s-4 border-border',
         assignment.status === 'PENDING' && 'bg-white/90 opacity-85 border border-dashed border-s-4 border-border',
@@ -76,7 +77,7 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
           {assignment.universityName}
         </span>
         <span
-          className="shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium text-white"
+          className="shrink-0 rounded-full px-1.5 py-0.5 text-xs font-medium text-white"
           style={{ backgroundColor: typeBadgeBg }}
         >
           {isGroup ? t('card.group') : t('card.elective')}
@@ -102,7 +103,7 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
         </span>
       </div>
 
-      <div className="mt-1 text-[#1E2A5E]/60 text-[10px]">
+      <div className="mt-1 text-[#1E2A5E]/60 text-xs">
         {assignment.studentCount
           ? `${assignment.studentCount}`
           : t('card.noStudents')}

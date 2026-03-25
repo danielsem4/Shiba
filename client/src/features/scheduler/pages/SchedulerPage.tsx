@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { DndContext, DragOverlay } from '@dnd-kit/core'
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core'
 import { toast } from 'sonner'
 import { useSchedulerStore } from '../stores/schedulerStore'
@@ -57,6 +57,9 @@ export default function SchedulerPage() {
   })
   const blockedCells = useBlockedCells(constraints, weeks)
   const moveMutation = useMoveAssignment()
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+  )
 
   // Find the currently dragged assignment for the drag overlay
   const draggedAssignment = activeDragId
@@ -116,14 +119,14 @@ export default function SchedulerPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <h1 className="text-2xl font-bold">{t('title')}</h1>
+    <div className="flex flex-col gap-4 min-w-0 h-full overflow-hidden">
+      <h1 className="text-2xl font-bold shrink-0">{t('title')}</h1>
       <SchedulerToolbar />
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      <div className="flex items-center justify-between gap-4 flex-wrap shrink-0">
         <SchedulerFilters />
         <AssignmentLegend />
       </div>
-      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <SchedulerGrid
           departments={departments ?? []}
           weeks={weeks}

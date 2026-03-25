@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
-import { DayPicker } from 'react-day-picker'
 import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { toast } from 'sonner'
@@ -24,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 import { createAssignmentSchema, type AssignmentFormData } from '../../schemas/assignmentSchema'
@@ -152,7 +152,7 @@ export function ManualAssignmentDialog() {
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <DayPicker
+                      <Calendar
                         mode="single"
                         selected={field.value}
                         onSelect={(date) => {
@@ -189,7 +189,7 @@ export function ManualAssignmentDialog() {
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <DayPicker
+                      <Calendar
                         mode="single"
                         selected={field.value}
                         onSelect={(date) => {

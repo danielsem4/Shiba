@@ -25,7 +25,7 @@ export function SchedulerToolbar() {
   }, [academicYears, academicYearId, setAcademicYear])
 
   return (
-    <div className="flex items-center gap-3 flex-wrap">
+    <div className="flex items-center gap-3 flex-wrap shrink-0">
       <Select
         value={academicYearId?.toString() ?? ''}
         onValueChange={(value) => setAcademicYear(Number(value))}

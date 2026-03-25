@@ -24,7 +24,7 @@ export function GridRow({
       {/* Department name cell: sticky inline-end (RTL right) */}
       <div
         className="sticky z-[5] bg-white border-b border-border flex items-center p-2 text-sm font-medium text-[#1E2A5E]"
-        style={{ insetInlineEnd: 0 }}
+        style={{ insetInlineStart: 0 }}
       >
         {department.name}
       </div>

@@ -21,7 +21,7 @@ export function GridHeader({ weeks }: GridHeaderProps) {
       {/* Corner cell: sticky top + sticky inline-end (RTL right) */}
       <div
         className="sticky top-0 z-20 bg-[#1E2A5E] text-white font-semibold text-sm flex items-center justify-center p-2"
-        style={{ insetInlineEnd: 0, position: 'sticky' }}
+        style={{ insetInlineStart: 0 }}
       >
         {t('grid.departments')}
       </div>
@@ -35,7 +35,7 @@ export function GridHeader({ weeks }: GridHeaderProps) {
           <div className="text-sm font-semibold">
             {t('grid.week')} {week.weekNumber}
           </div>
-          <div className="text-[10px] opacity-80">
+          <div className="text-xs opacity-80">
             {formatDate(week.startDate)} - {formatDate(week.endDate)}
           </div>
         </div>
