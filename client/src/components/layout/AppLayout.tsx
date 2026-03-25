@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import {
   Home,
   Calendar,
-  CalendarDays,
   ShieldCheck,
   BarChart3,
   Settings,
@@ -28,7 +27,6 @@ export function AppLayout() {
   const baseNavItems: NavItem[] = [
     { label: t('nav.home'), path: '/home', icon: Home },
     { label: t('nav.scheduler'), path: '/scheduler', icon: Calendar },
-    { label: t('nav.assignments'), path: '/assignments', icon: CalendarDays },
     { label: t('nav.constraints'), path: '/constraints', icon: ShieldCheck },
     { label: t('nav.statistics'), path: '/statistics', icon: BarChart3 },
     { label: t('nav.settings'), path: '/settings', icon: Settings },
@@ -38,9 +36,9 @@ export function AppLayout() {
 
   const navItems: NavItem[] = isAdmin
     ? [
-        ...baseNavItems.slice(0, 5),
+        ...baseNavItems.slice(0, 4),
         { label: t('nav.coordinators'), path: '/coordinators', icon: Users },
-        ...baseNavItems.slice(5),
+        ...baseNavItems.slice(4),
       ]
     : baseNavItems
 

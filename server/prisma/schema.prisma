@@ -78,9 +78,10 @@ model University {
   priority Int     @default(0)
   isActive Boolean @default(true)
 
-  semesters   UniversitySemester[]
-  students    Student[]
-  assignments Assignment[]
+  semesters       UniversitySemester[]
+  students        Student[]
+  assignments     Assignment[]
+  softConstraints SoftConstraint[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -123,6 +124,7 @@ model Department {
 
   assignments           Assignment[]
   departmentConstraints DepartmentConstraint[]
+  softConstraints       SoftConstraint[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -232,11 +234,18 @@ model DateConstraint {
 }
 
 model SoftConstraint {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String
-  priority    Int     @default(0)
-  isActive    Boolean @default(true)
+  id           Int         @id @default(autoincrement())
+  name         String
+  description  String
+  priority     Int         @default(0)
+  isActive     Boolean     @default(true)
+  departmentId Int?
+  universityId Int?
+  startDate    DateTime?
+  endDate      DateTime?
+
+  department Department? @relation(fields: [departmentId], references: [id])
+  university University? @relation(fields: [universityId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -250,6 +259,7 @@ model Holiday {
   date      DateTime
   isFullDay Boolean  @default(true)
   year      Int
+  isActive  Boolean  @default(true)
 
   createdAt DateTime @default(now())
 
