@@ -25,21 +25,62 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { useIsAdmin } from '@/hooks/useIsAdmin'
 
 import { createAssignmentSchema, type AssignmentFormData } from '../../schemas/assignmentSchema'
 import { useCreateAssignment } from '../../hooks/useCreateAssignment'
 import { useDepartments } from '../../hooks/useDepartments'
 import { useUniversities } from '../../hooks/useUniversities'
+import { useAssignments } from '../../hooks/useAssignments'
+import { useConstraints } from '../../hooks/useConstraints'
+import { useAcademicYears } from '../../hooks/useAcademicYears'
+import { useAcademicYearWeeks } from '../../hooks/useAcademicYearWeeks'
+import { useBlockedCells } from '../../hooks/useBlockedCells'
 import { useSchedulerStore } from '../../stores/schedulerStore'
+import { validateDrop } from '../../validators/assignmentValidator'
+import { findAvailableWeeks } from '../../validators/findAvailableWeeks'
+import type { Assignment } from '../../types/scheduler.types'
 
 export function ManualAssignmentDialog() {
   const { t } = useTranslation('scheduler')
-  const { activeDialog, closeDialog, academicYearId } = useSchedulerStore()
+  const {
+    activeDialog,
+    closeDialog,
+    academicYearId,
+    selectedUniversities,
+    selectedShift,
+    selectedYear,
+    openReplacementDialog,
+    openAdminOverrideDialog,
+  } = useSchedulerStore()
   const isOpen = activeDialog === 'create'
+  const isAdmin = useIsAdmin()
 
   const { data: departments } = useDepartments()
   const { data: universities } = useUniversities()
   const createAssignment = useCreateAssignment()
+
+  const { data: academicYears } = useAcademicYears()
+  const currentYear = academicYears?.find((y) => y.id === academicYearId)
+  const { data: assignments } = useAssignments(academicYearId, {
+    selectedUniversities,
+    selectedShift,
+    selectedYear,
+  })
+  const constraintYears = currentYear
+    ? [...new Set([
+        new Date(currentYear.startDate).getFullYear(),
+        new Date(currentYear.endDate).getFullYear(),
+      ])]
+    : null
+  const { data: constraints } = useConstraints(constraintYears)
+  const weeks = useAcademicYearWeeks(currentYear)
+  const blockedCells = useBlockedCells(constraints, weeks)
+
+  const universityPriorities = useMemo(
+    () => new Map((universities ?? []).map((u) => [u.id, u.priority])),
+    [universities],
+  )
 
   const schema = useMemo(() => createAssignmentSchema(t), [t])
 
@@ -68,6 +109,90 @@ export function ManualAssignmentDialog() {
     if (!academicYearId) {
       toast.error(t('dialogs.validation.academicYearRequired'))
       return
+    }
+
+    // Pre-creation validation
+    if (assignments && constraints) {
+      const week = weeks.find((w) => data.startDate >= w.startDate && data.startDate <= w.endDate)
+      if (week) {
+        const universityName = universities?.find((u) => u.id === data.universityId)?.name ?? ''
+        const departmentName = departments?.find((d) => d.id === data.departmentId)?.name ?? ''
+
+        const tempAssignment: Assignment = {
+          id: 0,
+          departmentId: data.departmentId,
+          universityId: data.universityId,
+          academicYearId,
+          startDate: data.startDate.toISOString(),
+          endDate: data.endDate.toISOString(),
+          type: data.type,
+          shiftType: data.shiftType,
+          status: 'PENDING',
+          studentCount: data.studentCount ?? null,
+          yearInProgram: data.yearInProgram,
+          tutorName: data.tutorName ?? null,
+          universityName,
+          departmentName,
+        }
+
+        const validationContext = {
+          blockedCells,
+          existingAssignments: assignments,
+          departmentConstraints: constraints.departmentConstraints,
+          ironConstraints: constraints.ironConstraints,
+          weeks,
+          universityPriorities,
+          isAdmin,
+        }
+
+        const result = validateDrop(tempAssignment, data.departmentId, week.weekNumber, validationContext)
+
+        switch (result.type) {
+          case 'valid':
+            break // proceed to create
+          case 'blocked':
+            toast.error(t(result.reasonKey, result.reasonParams))
+            return
+          case 'conflict_replaceable': {
+            const suggestedWeeks = findAvailableWeeks(
+              result.displacedAssignment,
+              week.weekNumber,
+              validationContext,
+            )
+            // Close manual dialog and open replacement
+            handleClose()
+            openReplacementDialog(
+              { assignment: tempAssignment, targetDeptId: data.departmentId, targetWeekNum: week.weekNumber },
+              result.displacedAssignment,
+              suggestedWeeks,
+            )
+            return
+          }
+          case 'conflict_same_priority':
+            if (isAdmin) {
+              handleClose()
+              openAdminOverrideDialog(
+                { assignment: tempAssignment, targetDeptId: data.departmentId, targetWeekNum: week.weekNumber },
+                result.reasonKey,
+              )
+            } else {
+              toast.error(t(result.reasonKey))
+            }
+            return
+          case 'conflict_admin_override':
+            if (isAdmin) {
+              handleClose()
+              openAdminOverrideDialog(
+                { assignment: tempAssignment, targetDeptId: data.departmentId, targetWeekNum: week.weekNumber },
+                result.reasonKey,
+                result.reasonParams,
+              )
+            } else {
+              toast.error(t(result.reasonKey, result.reasonParams))
+            }
+            return
+        }
+      }
     }
 
     createAssignment.mutate(

@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core'
@@ -11,7 +12,11 @@ import { useAcademicYearWeeks } from '../hooks/useAcademicYearWeeks'
 import { useGridData } from '../hooks/useGridData'
 import { useBlockedCells } from '../hooks/useBlockedCells'
 import { useMoveAssignment } from '../hooks/useMoveAssignment'
+import { useUniversities } from '../hooks/useUniversities'
+import { useIsAdmin } from '@/hooks/useIsAdmin'
 import { validateDrop } from '../validators/assignmentValidator'
+import type { ValidationContext } from '../validators/assignmentValidator'
+import { findAvailableWeeks } from '../validators/findAvailableWeeks'
 import { SchedulerGrid } from '../components/grid/SchedulerGrid'
 import { GridDragOverlay } from '../components/grid/GridDragOverlay'
 import { SchedulerToolbar } from '../components/SchedulerToolbar'
@@ -20,7 +25,9 @@ import { AssignmentLegend } from '../components/AssignmentLegend'
 import { ManualAssignmentDialog } from '../components/dialogs/ManualAssignmentDialog'
 import { ExcelImportDialog } from '../components/dialogs/ExcelImportDialog'
 import { EditAssignmentDialog } from '../components/dialogs/EditAssignmentDialog'
-import type { Assignment } from '../types/scheduler.types'
+import { ReplacementDialog } from '../components/dialogs/ReplacementDialog'
+import { AdminOverrideDialog } from '../components/dialogs/AdminOverrideDialog'
+import type { Assignment, WeekDefinition } from '../types/scheduler.types'
 
 export default function SchedulerPage() {
   const { t } = useTranslation('scheduler')
@@ -32,8 +39,16 @@ export default function SchedulerPage() {
     activeDialog,
     activeDragId,
     setActiveDragId,
+    pendingMove,
+    displacedAssignment,
+    replacementSuggestedWeeks,
+    adminOverrideReason,
+    openReplacementDialog,
+    openAdminOverrideDialog,
+    clearPendingMove,
   } = useSchedulerStore()
 
+  const isAdmin = useIsAdmin()
   const { data: academicYears } = useAcademicYears()
   const currentYear = academicYears?.find((y) => y.id === academicYearId)
   const { data: departments } = useDepartments()
@@ -49,6 +64,7 @@ export default function SchedulerPage() {
       ])]
     : null
   const { data: constraints } = useConstraints(constraintYears)
+  const { data: universities } = useUniversities()
   const weeks = useAcademicYearWeeks(currentYear)
   const gridData = useGridData(assignments, weeks, {
     selectedUniversities,
@@ -61,6 +77,26 @@ export default function SchedulerPage() {
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   )
 
+  // Build university priorities map
+  const universityPriorities = useMemo(
+    () => new Map((universities ?? []).map((u) => [u.id, u.priority])),
+    [universities],
+  )
+
+  // Build validation context (reused by drag-drop + dialogs)
+  const validationContext: ValidationContext | null =
+    assignments && constraints
+      ? {
+          blockedCells,
+          existingAssignments: assignments,
+          departmentConstraints: constraints.departmentConstraints,
+          ironConstraints: constraints.ironConstraints,
+          weeks,
+          universityPriorities,
+          isAdmin,
+        }
+      : null
+
   // Find the currently dragged assignment for the drag overlay
   const draggedAssignment = activeDragId
     ? assignments?.find((a) => a.id === activeDragId)
@@ -70,10 +106,24 @@ export default function SchedulerPage() {
     setActiveDragId(event.active.id as number)
   }
 
+  function executeMoveAssignment(assignment: Assignment, targetDeptId: number, targetWeekNum: number) {
+    const targetWeek = weeks.find((w) => w.weekNumber === targetWeekNum)
+    if (!targetWeek) return
+
+    moveMutation.mutate({
+      id: assignment.id,
+      data: {
+        departmentId: targetDeptId,
+        startDate: targetWeek.startDate.toISOString(),
+        endDate: targetWeek.endDate.toISOString(),
+      },
+    })
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     setActiveDragId(null)
     const { active, over } = event
-    if (!over || !assignments || !constraints) return
+    if (!over || !validationContext) return
 
     const assignment = active.data.current?.assignment as Assignment
     const { departmentId, weekNumber } = over.data.current as {
@@ -90,32 +140,88 @@ export default function SchedulerPage() {
       if (currentWeek?.weekNumber === weekNumber) return
     }
 
-    // Validate the drop
-    const result = validateDrop(assignment, departmentId, weekNumber, {
-      blockedCells,
-      existingAssignments: assignments,
-      departmentConstraints: constraints.departmentConstraints,
-      ironConstraints: constraints.ironConstraints,
-      weeks,
-    })
+    const result = validateDrop(assignment, departmentId, weekNumber, validationContext)
 
-    if (!result.valid) {
-      toast.error(t(result.reasonKey, result.reasonParams))
-      return
+    switch (result.type) {
+      case 'valid':
+        executeMoveAssignment(assignment, departmentId, weekNumber)
+        break
+
+      case 'blocked':
+        toast.error(t(result.reasonKey, result.reasonParams))
+        break
+
+      case 'conflict_replaceable': {
+        const suggestedWeeks = findAvailableWeeks(
+          result.displacedAssignment,
+          weekNumber,
+          validationContext,
+        )
+        openReplacementDialog(
+          { assignment, targetDeptId: departmentId, targetWeekNum: weekNumber },
+          result.displacedAssignment,
+          suggestedWeeks,
+        )
+        break
+      }
+
+      case 'conflict_same_priority':
+        if (isAdmin) {
+          openAdminOverrideDialog(
+            { assignment, targetDeptId: departmentId, targetWeekNum: weekNumber },
+            result.reasonKey,
+          )
+        } else {
+          toast.error(t(result.reasonKey))
+        }
+        break
+
+      case 'conflict_admin_override':
+        if (isAdmin) {
+          openAdminOverrideDialog(
+            { assignment, targetDeptId: departmentId, targetWeekNum: weekNumber },
+            result.reasonKey,
+            result.reasonParams,
+          )
+        } else {
+          toast.error(t(result.reasonKey, result.reasonParams))
+        }
+        break
     }
+  }
 
-    // Find the target week to get the actual dates
-    const targetWeek = weeks.find((w) => w.weekNumber === weekNumber)
-    if (!targetWeek) return
+  function handleReplacementConfirm(targetWeek: WeekDefinition) {
+    if (!pendingMove || !displacedAssignment) return
 
-    moveMutation.mutate({
-      id: assignment.id,
-      data: {
-        departmentId,
-        startDate: targetWeek.startDate.toISOString(),
-        endDate: targetWeek.endDate.toISOString(),
-      },
-    })
+    // 1. Move incoming assignment to original target cell
+    executeMoveAssignment(
+      pendingMove.assignment,
+      pendingMove.targetDeptId,
+      pendingMove.targetWeekNum,
+    )
+
+    // 2. Move displaced assignment to user-selected week (same department)
+    executeMoveAssignment(
+      displacedAssignment,
+      displacedAssignment.departmentId,
+      targetWeek.weekNumber,
+    )
+
+    toast.success(t('toast.replacementSuccess'))
+    clearPendingMove()
+  }
+
+  function handleAdminOverrideConfirm() {
+    if (!pendingMove) return
+
+    executeMoveAssignment(
+      pendingMove.assignment,
+      pendingMove.targetDeptId,
+      pendingMove.targetWeekNum,
+    )
+
+    toast.success(t('toast.overrideSuccess'))
+    clearPendingMove()
   }
 
   return (
@@ -142,6 +248,25 @@ export default function SchedulerPage() {
       {activeDialog === 'create' && <ManualAssignmentDialog />}
       {activeDialog === 'import' && <ExcelImportDialog />}
       {activeDialog === 'edit' && <EditAssignmentDialog />}
+      {activeDialog === 'replacement' && displacedAssignment && replacementSuggestedWeeks && (
+        <ReplacementDialog
+          open
+          displacedAssignment={displacedAssignment}
+          suggestedWeeks={replacementSuggestedWeeks}
+          allWeeks={weeks}
+          onReplace={handleReplacementConfirm}
+          onCancel={clearPendingMove}
+        />
+      )}
+      {activeDialog === 'adminOverride' && adminOverrideReason && (
+        <AdminOverrideDialog
+          open
+          reasonKey={adminOverrideReason.reasonKey}
+          reasonParams={adminOverrideReason.reasonParams}
+          onConfirm={handleAdminOverrideConfirm}
+          onCancel={clearPendingMove}
+        />
+      )}
     </div>
   )
 }

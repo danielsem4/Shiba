@@ -23,7 +23,13 @@
     "blocked": {
       "holiday": "חג — אין שיבוצים",
       "dateBlock": "מחלקה חסומה",
-      "capacityFull": "קיבולת מלאה"
+      "capacityFull": "קיבולת מלאה",
+      "samePriority": "אותה עדיפות — המשבצת תפוסה",
+      "lowerPriority": "עדיפות נמוכה יותר — לא ניתן להחליף שיבוץ קיים",
+      "crossDepartment": "התנגשות בין מחלקות — כבר משובץ ב{{name}} באותה משמרת",
+      "electiveCapacityFull": "קיבולת אלקטיבים מלאה לשבוע זה",
+      "shiftUnavailable": "משמרת זו אינה זמינה למחלקה זו",
+      "groupTooBig": "גודל הקבוצה ({{count}} סטודנטים) חורג מקיבולת המחלקה (מקסימום {{capacity}})"
     }
   },
   "card": {
@@ -60,7 +66,9 @@
       "validationSuccess": "הקובץ תקין",
       "validationError": "העמודות בקובץ אינן תואמות את התבנית הנדרשת",
       "assignmentsFound": "{{count}} שיבוצים נמצאו",
-      "import": "ייבא שיבוצים"
+      "import": "ייבא שיבוצים",
+      "importAnyway": "ייבא בכל זאת (מנהל)",
+      "rowError": "שורה {{row}}"
     },
     "edit": {
       "title": "עריכת שיבוץ",
@@ -79,6 +87,21 @@
       "nationalId": "ת.ז.",
       "phone": "טלפון",
       "email": "אימייל"
+    },
+    "replacement": {
+      "title": "נדרשת החלפה",
+      "description": "שיבוץ בעדיפות גבוהה יותר מחליף את {{university}} (שנה {{year}}, {{shift}}). בחר שבוע חדש לשיבוץ המוחלף.",
+      "suggestedWeeks": "שבועות מוצעים",
+      "chooseManually": "בחר ידנית",
+      "week": "שבוע {{number}}",
+      "cancel": "ביטול",
+      "confirm": "אישור"
+    },
+    "adminOverride": {
+      "title": "דריסת התנגשות",
+      "description": "לשיבוץ זה יש התנגשות בלוח.",
+      "cancel": "ביטול",
+      "force": "שבץ בכוח"
     },
     "validation": {
       "departmentRequired": "יש לבחור מחלקה",
@@ -110,7 +133,9 @@
     "importSuccess": "{{count}} שיבוצים יובאו",
     "importFailed": "הייבוא נכשל",
     "studentAdded": "סטודנט נוסף",
-    "studentRemoved": "סטודנט הוסר"
+    "studentRemoved": "סטודנט הוסר",
+    "replacementSuccess": "השיבוצים הוחלפו בהצלחה",
+    "overrideSuccess": "השיבוץ בוצע (דריסת מנהל)"
   },
   "legend": {
     "title": "מקרא",

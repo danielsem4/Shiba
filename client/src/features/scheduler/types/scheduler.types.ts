@@ -94,6 +94,7 @@ export interface SchedulerFilters {
 export interface University {
   id: number
   name: string
+  priority: number
 }
 
 export interface CreateAssignmentDto {
@@ -146,3 +147,25 @@ export interface CreateStudentDto {
   phone?: string | null
   email?: string | null
 }
+
+// --- Validation Result Types ---
+
+export type ValidationResult =
+  | { type: 'valid' }
+  | { type: 'blocked'; reasonKey: string; reasonParams?: Record<string, string> }
+  | {
+      type: 'conflict_replaceable'
+      displacedAssignment: Assignment
+      incomingPriority: number
+      displacedPriority: number
+    }
+  | {
+      type: 'conflict_same_priority'
+      existingAssignment: Assignment
+      reasonKey: string
+    }
+  | {
+      type: 'conflict_admin_override'
+      reasonKey: string
+      reasonParams?: Record<string, string>
+    }

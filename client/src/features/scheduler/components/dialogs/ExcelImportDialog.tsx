@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as XLSX from 'xlsx'
 import { toast } from 'sonner'
@@ -12,11 +12,19 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { useIsAdmin } from '@/hooks/useIsAdmin'
 
 import { ExcelDropZone } from './ExcelDropZone'
 import { useImportAssignments } from '../../hooks/useImportAssignments'
+import { useAssignments } from '../../hooks/useAssignments'
+import { useConstraints } from '../../hooks/useConstraints'
+import { useAcademicYears } from '../../hooks/useAcademicYears'
+import { useAcademicYearWeeks } from '../../hooks/useAcademicYearWeeks'
+import { useBlockedCells } from '../../hooks/useBlockedCells'
+import { useUniversities } from '../../hooks/useUniversities'
 import { useSchedulerStore } from '../../stores/schedulerStore'
-import type { CreateAssignmentDto } from '../../types/scheduler.types'
+import { validateDrop } from '../../validators/assignmentValidator'
+import type { CreateAssignmentDto, Assignment } from '../../types/scheduler.types'
 
 // Expected column names — English and Hebrew variants
 const EXPECTED_COLUMNS_EN = [
@@ -111,16 +119,58 @@ function parseRow(
   }
 }
 
+interface ValidationError {
+  row: number
+  reasonKey: string
+  reasonParams?: Record<string, string>
+}
+
 type ParseState =
   | { status: 'idle' }
   | { status: 'error'; message: string }
-  | { status: 'success'; count: number; assignments: CreateAssignmentDto[] }
+  | {
+      status: 'success'
+      count: number
+      assignments: CreateAssignmentDto[]
+      validationErrors: ValidationError[]
+    }
 
 export function ExcelImportDialog() {
   const { t } = useTranslation('scheduler')
-  const { activeDialog, closeDialog, academicYearId } = useSchedulerStore()
+  const {
+    activeDialog,
+    closeDialog,
+    academicYearId,
+    selectedUniversities,
+    selectedShift,
+    selectedYear,
+  } = useSchedulerStore()
   const importMutation = useImportAssignments()
   const isOpen = activeDialog === 'import'
+  const isAdmin = useIsAdmin()
+
+  const { data: academicYears } = useAcademicYears()
+  const currentYear = academicYears?.find((y) => y.id === academicYearId)
+  const { data: assignments } = useAssignments(academicYearId, {
+    selectedUniversities,
+    selectedShift,
+    selectedYear,
+  })
+  const constraintYears = currentYear
+    ? [...new Set([
+        new Date(currentYear.startDate).getFullYear(),
+        new Date(currentYear.endDate).getFullYear(),
+      ])]
+    : null
+  const { data: constraints } = useConstraints(constraintYears)
+  const { data: universities } = useUniversities()
+  const weeks = useAcademicYearWeeks(currentYear)
+  const blockedCells = useBlockedCells(constraints, weeks)
+
+  const universityPriorities = useMemo(
+    () => new Map((universities ?? []).map((u) => [u.id, u.priority])),
+    [universities],
+  )
 
   const [parseState, setParseState] = useState<ParseState>({ status: 'idle' })
 
@@ -156,15 +206,73 @@ export function ExcelImportDialog() {
           return
         }
 
-        const assignments = jsonData.map((row) => {
+        const parsedAssignments = jsonData.map((row) => {
           const normalized = normalizeRow(row, headers)
           return parseRow(normalized, academicYearId ?? 0)
         })
 
+        // Validate each row against constraints
+        const validationErrors: ValidationError[] = []
+        if (assignments && constraints) {
+          for (let i = 0; i < parsedAssignments.length; i++) {
+            const dto = parsedAssignments[i]
+            const startDate = new Date(dto.startDate)
+            const week = weeks.find(
+              (w) => startDate >= w.startDate && startDate <= w.endDate,
+            )
+            if (!week) continue
+
+            const tempAssignment: Assignment = {
+              id: -(i + 1), // negative IDs for temp assignments
+              departmentId: dto.departmentId,
+              universityId: dto.universityId,
+              academicYearId: dto.academicYearId,
+              startDate: dto.startDate,
+              endDate: dto.endDate,
+              type: dto.type,
+              shiftType: dto.shiftType,
+              status: 'PENDING',
+              studentCount: dto.studentCount,
+              yearInProgram: dto.yearInProgram,
+              tutorName: dto.tutorName,
+              universityName: '',
+              departmentName: '',
+            }
+
+            const result = validateDrop(tempAssignment, dto.departmentId, week.weekNumber, {
+              blockedCells,
+              existingAssignments: assignments,
+              departmentConstraints: constraints.departmentConstraints,
+              ironConstraints: constraints.ironConstraints,
+              weeks,
+              universityPriorities,
+              isAdmin,
+            })
+
+            if (result.type !== 'valid') {
+              const reasonKey =
+                result.type === 'blocked'
+                  ? result.reasonKey
+                  : result.type === 'conflict_same_priority'
+                    ? result.reasonKey
+                    : result.type === 'conflict_admin_override'
+                      ? result.reasonKey
+                      : 'grid.blocked.capacityFull'
+              validationErrors.push({
+                row: i + 1,
+                reasonKey,
+                reasonParams:
+                  result.type === 'blocked' ? result.reasonParams : undefined,
+              })
+            }
+          }
+        }
+
         setParseState({
           status: 'success',
-          count: assignments.length,
-          assignments,
+          count: parsedAssignments.length,
+          assignments: parsedAssignments,
+          validationErrors,
         })
       } catch {
         setParseState({
@@ -173,7 +281,7 @@ export function ExcelImportDialog() {
         })
       }
     },
-    [academicYearId, t],
+    [academicYearId, t, assignments, constraints, weeks, blockedCells, universityPriorities, isAdmin],
   )
 
   const handleImport = useCallback(() => {
@@ -188,6 +296,11 @@ export function ExcelImportDialog() {
       },
     })
   }, [parseState, importMutation, handleClose, t])
+
+  const hasBlockingErrors =
+    parseState.status === 'success' &&
+    parseState.validationErrors.length > 0 &&
+    !isAdmin
 
   return (
     <Dialog
@@ -212,16 +325,30 @@ export function ExcelImportDialog() {
           )}
 
           {parseState.status === 'success' && (
-            <div className="flex items-center gap-2 rounded-md border border-green-500/50 bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950/20 dark:text-green-300">
-              <CheckCircle2 className="size-4 shrink-0" />
-              <span>
-                {t('dialogs.import.validationSuccess')}
-                {' — '}
-                {t('dialogs.import.assignmentsFound', {
-                  count: parseState.count,
-                })}
-              </span>
-            </div>
+            <>
+              <div className="flex items-center gap-2 rounded-md border border-green-500/50 bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950/20 dark:text-green-300">
+                <CheckCircle2 className="size-4 shrink-0" />
+                <span>
+                  {t('dialogs.import.validationSuccess')}
+                  {' — '}
+                  {t('dialogs.import.assignmentsFound', {
+                    count: parseState.count,
+                  })}
+                </span>
+              </div>
+
+              {parseState.validationErrors.length > 0 && (
+                <div className="flex flex-col gap-1 rounded-md border border-amber-500/50 bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-950/20 dark:text-amber-300">
+                  <AlertCircle className="size-4 shrink-0" />
+                  {parseState.validationErrors.map((err) => (
+                    <span key={err.row}>
+                      {t('dialogs.import.rowError', { row: err.row })}:{' '}
+                      {t(err.reasonKey, err.reasonParams)}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -232,11 +359,17 @@ export function ExcelImportDialog() {
           <Button
             type="button"
             disabled={
-              parseState.status !== 'success' || importMutation.isPending
+              parseState.status !== 'success' ||
+              importMutation.isPending ||
+              hasBlockingErrors
             }
             onClick={handleImport}
           >
-            {t('dialogs.import.import')}
+            {parseState.status === 'success' &&
+            parseState.validationErrors.length > 0 &&
+            isAdmin
+              ? t('dialogs.import.importAnyway')
+              : t('dialogs.import.import')}
           </Button>
         </DialogFooter>
       </DialogContent>

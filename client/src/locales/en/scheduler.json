@@ -23,7 +23,13 @@
     "blocked": {
       "holiday": "Holiday - No assignments",
       "dateBlock": "Department blocked",
-      "capacityFull": "Capacity full"
+      "capacityFull": "Capacity full",
+      "samePriority": "Same priority — slot already taken",
+      "lowerPriority": "Lower priority — cannot replace existing assignment",
+      "crossDepartment": "Cross-department conflict — already assigned in {{name}} this shift",
+      "electiveCapacityFull": "Elective capacity full for this week",
+      "shiftUnavailable": "This shift is not available for this department",
+      "groupTooBig": "Group size ({{count}} students) exceeds department capacity ({{capacity}} max)"
     }
   },
   "card": {
@@ -60,7 +66,9 @@
       "validationSuccess": "File is valid",
       "validationError": "Columns do not match required template",
       "assignmentsFound": "{{count}} assignments found",
-      "import": "Import Assignments"
+      "import": "Import Assignments",
+      "importAnyway": "Import Anyway (Admin)",
+      "rowError": "Row {{row}}"
     },
     "edit": {
       "title": "Edit Assignment",
@@ -79,6 +87,21 @@
       "nationalId": "National ID",
       "phone": "Phone",
       "email": "Email"
+    },
+    "replacement": {
+      "title": "Replacement Required",
+      "description": "A higher priority assignment is replacing {{university}} (Year {{year}}, {{shift}}). Choose a new week for the displaced assignment.",
+      "suggestedWeeks": "Suggested Weeks",
+      "chooseManually": "Choose Manually",
+      "week": "Week {{number}}",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "adminOverride": {
+      "title": "Conflict Override",
+      "description": "This placement has a scheduling conflict.",
+      "cancel": "Cancel",
+      "force": "Force Placement"
     },
     "validation": {
       "departmentRequired": "Department is required",
@@ -110,7 +133,9 @@
     "importSuccess": "{{count}} assignments imported",
     "importFailed": "Import failed",
     "studentAdded": "Student added",
-    "studentRemoved": "Student removed"
+    "studentRemoved": "Student removed",
+    "replacementSuccess": "Assignments swapped successfully",
+    "overrideSuccess": "Assignment placed (admin override)"
   },
   "legend": {
     "title": "Legend",
