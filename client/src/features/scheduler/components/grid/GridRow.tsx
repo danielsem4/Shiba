@@ -63,8 +63,13 @@ export function GridRow({
         // Check department-specific blocks first, then hospital-wide holiday blocks
         const deptBlockKey = `dept:${department.id}:week:${week.weekNumber}`
         const holidayBlockKey = `holiday:week:${week.weekNumber}`
+        const softDeptKey = `soft:dept:${department.id}:week:${week.weekNumber}`
+        const softGlobalKey = `soft:week:${week.weekNumber}`
         const blockReason =
-          blockedCells.get(deptBlockKey) ?? blockedCells.get(holidayBlockKey)
+          blockedCells.get(deptBlockKey) ??
+          blockedCells.get(holidayBlockKey) ??
+          blockedCells.get(softDeptKey) ??
+          blockedCells.get(softGlobalKey)
 
         return (
           <div key={week.weekNumber} className="min-w-[200px] flex-1">

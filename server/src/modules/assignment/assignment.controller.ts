@@ -8,6 +8,8 @@ import type {
   ImportAssignmentsDto,
   AddStudentDto,
   ImportStudentsDto,
+  RejectAssignmentDto,
+  DisplaceAssignmentDto,
 } from './assignment.schema';
 
 export function createAssignmentController(service: AssignmentService) {
@@ -39,6 +41,15 @@ export function createAssignmentController(service: AssignmentService) {
           filters.yearInProgram = Number(req.query.yearInProgram);
         }
 
+        if (req.query.status) {
+          const raw = req.query.status;
+          if (Array.isArray(raw)) {
+            filters.status = raw as ('PENDING' | 'APPROVED' | 'REJECTED')[];
+          } else {
+            filters.status = raw as 'PENDING' | 'APPROVED' | 'REJECTED';
+          }
+        }
+
         const assignments = await service.getByAcademicYear(academicYearId, filters);
         res.json(assignments);
       } catch (err) {
@@ -58,7 +69,8 @@ export function createAssignmentController(service: AssignmentService) {
     async create(req: Request, res: Response, next: NextFunction): Promise<void> {
       try {
         const userId = req.currentUser!.userId;
-        const assignment = await service.create(req.body as CreateAssignmentDto, userId);
+        const userRole = req.currentUser!.role;
+        const assignment = await service.create(req.body as CreateAssignmentDto, userId, userRole);
         res.status(201).json(assignment);
       } catch (err) {
         next(err);
@@ -79,9 +91,13 @@ export function createAssignmentController(service: AssignmentService) {
 
     async move(req: Request, res: Response, next: NextFunction): Promise<void> {
       try {
+        const userId = req.currentUser!.userId;
+        const userRole = req.currentUser!.role;
         const assignment = await service.move(
           Number(req.params.id),
           req.body as MoveAssignmentDto,
+          userId,
+          userRole,
         );
         res.json(assignment);
       } catch (err) {
@@ -139,6 +155,42 @@ export function createAssignmentController(service: AssignmentService) {
           req.body as ImportStudentsDto,
         );
         res.status(201).json(result);
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async approve(req: Request, res: Response, next: NextFunction): Promise<void> {
+      try {
+        const userId = req.currentUser!.userId;
+        const assignment = await service.approve(Number(req.params.id), userId);
+        res.json(assignment);
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async reject(req: Request, res: Response, next: NextFunction): Promise<void> {
+      try {
+        const { rejectionReason } = req.body as RejectAssignmentDto;
+        await service.reject(Number(req.params.id), rejectionReason);
+        res.status(204).send();
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    async displace(req: Request, res: Response, next: NextFunction): Promise<void> {
+      try {
+        const userId = req.currentUser!.userId;
+        const userRole = req.currentUser!.role;
+        const assignment = await service.displace(
+          Number(req.params.id),
+          req.body as DisplaceAssignmentDto,
+          userId,
+          userRole,
+        );
+        res.json(assignment);
       } catch (err) {
         next(err);
       }

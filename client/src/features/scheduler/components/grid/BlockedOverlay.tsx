@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { CalendarOff, Lock, AlertTriangle } from 'lucide-react'
+import { CalendarOff, Lock, AlertTriangle, ShieldAlert } from 'lucide-react'
 import {
   Tooltip,
   TooltipContent,
@@ -29,6 +29,11 @@ const blockConfig = {
     bgClass: 'bg-white border-[#fcd34d] border-solid',
     textKey: 'grid.blocked.capacityFull' as const,
   },
+  softConstraint: {
+    icon: ShieldAlert,
+    bgClass: 'bg-[#fff7ed] border-dashed border-orange-300',
+    textKey: 'grid.blocked.softConstraint' as const,
+  },
 } as const
 
 export function BlockedOverlay({ reason }: BlockedOverlayProps) {
@@ -51,7 +56,7 @@ export function BlockedOverlay({ reason }: BlockedOverlayProps) {
           >
             <Icon className="size-4 text-muted-foreground" />
             <span className="text-[10px] text-muted-foreground text-center px-1 leading-tight">
-              {reason.type === 'holiday' && reason.constraintName
+              {(reason.type === 'holiday' || reason.type === 'softConstraint') && reason.constraintName
                 ? reason.constraintName
                 : label}
             </span>

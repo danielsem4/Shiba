@@ -68,6 +68,20 @@ export const importStudentsSchema = z.object({
   })),
 });
 
+export const rejectAssignmentSchema = z.object({
+  rejectionReason: z.string().optional(),
+});
+
+export const displaceAssignmentSchema = z.object({
+  departmentId: z.number().int().positive(),
+  startDate: z.coerce.date().refine((d) => d.getDay() === 0, { message: 'Start date must be a Sunday' }),
+  endDate: z.coerce.date().refine((d) => d.getDay() === 4, { message: 'End date must be a Thursday' }),
+  displacedAssignmentId: z.number().int(),
+  displacedDepartmentId: z.number().int().positive(),
+  displacedStartDate: z.coerce.date(),
+  displacedEndDate: z.coerce.date(),
+});
+
 // Export inferred types
 export type CreateAssignmentDto = z.infer<typeof createAssignmentSchema>;
 export type UpdateAssignmentDto = z.infer<typeof updateAssignmentSchema>;
@@ -75,3 +89,5 @@ export type MoveAssignmentDto = z.infer<typeof moveAssignmentSchema>;
 export type ImportAssignmentsDto = z.infer<typeof importAssignmentsSchema>;
 export type AddStudentDto = z.infer<typeof addStudentSchema>;
 export type ImportStudentsDto = z.infer<typeof importStudentsSchema>;
+export type RejectAssignmentDto = z.infer<typeof rejectAssignmentSchema>;
+export type DisplaceAssignmentDto = z.infer<typeof displaceAssignmentSchema>;

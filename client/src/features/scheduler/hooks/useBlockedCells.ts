@@ -47,6 +47,37 @@ export function useBlockedCells(
       }
     }
 
+    // Soft constraint blocking
+    if (constraints.softConstraints) {
+      for (const sc of constraints.softConstraints) {
+        const scStart = new Date(sc.startDate)
+        const scEnd = new Date(sc.endDate)
+        for (const week of weeks) {
+          if (week.startDate <= scEnd && week.endDate >= scStart) {
+            if (sc.departmentId) {
+              const key = `soft:dept:${sc.departmentId}:week:${week.weekNumber}`
+              if (!blocked.has(key)) {
+                blocked.set(key, {
+                  type: 'softConstraint',
+                  description: sc.description,
+                  constraintName: sc.name,
+                })
+              }
+            } else {
+              const key = `soft:week:${week.weekNumber}`
+              if (!blocked.has(key)) {
+                blocked.set(key, {
+                  type: 'softConstraint',
+                  description: sc.description,
+                  constraintName: sc.name,
+                })
+              }
+            }
+          }
+        }
+      }
+    }
+
     return blocked
   }, [constraints, weeks])
 }

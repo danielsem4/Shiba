@@ -12,11 +12,13 @@ import { useAcademicYearWeeks } from '../hooks/useAcademicYearWeeks'
 import { useGridData } from '../hooks/useGridData'
 import { useBlockedCells } from '../hooks/useBlockedCells'
 import { useMoveAssignment } from '../hooks/useMoveAssignment'
+import { useDisplaceAssignment } from '../hooks/useDisplaceAssignment'
 import { useUniversities } from '../hooks/useUniversities'
 import { useIsAdmin } from '@/hooks/useIsAdmin'
 import { validateDrop } from '../validators/assignmentValidator'
 import type { ValidationContext } from '../validators/assignmentValidator'
 import { findAvailableWeeks } from '../validators/findAvailableWeeks'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SchedulerGrid } from '../components/grid/SchedulerGrid'
 import { GridDragOverlay } from '../components/grid/GridDragOverlay'
 import { SchedulerToolbar } from '../components/SchedulerToolbar'
@@ -27,6 +29,7 @@ import { ExcelImportDialog } from '../components/dialogs/ExcelImportDialog'
 import { EditAssignmentDialog } from '../components/dialogs/EditAssignmentDialog'
 import { ReplacementDialog } from '../components/dialogs/ReplacementDialog'
 import { AdminOverrideDialog } from '../components/dialogs/AdminOverrideDialog'
+import { ApprovalTab } from '../components/approval/ApprovalTab'
 import type { Assignment, WeekDefinition } from '../types/scheduler.types'
 
 export default function SchedulerPage() {
@@ -73,6 +76,7 @@ export default function SchedulerPage() {
   })
   const blockedCells = useBlockedCells(constraints, weeks)
   const moveMutation = useMoveAssignment()
+  const displaceMutation = useDisplaceAssignment()
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   )
@@ -193,21 +197,22 @@ export default function SchedulerPage() {
   function handleReplacementConfirm(targetWeek: WeekDefinition) {
     if (!pendingMove || !displacedAssignment) return
 
-    // 1. Move incoming assignment to original target cell
-    executeMoveAssignment(
-      pendingMove.assignment,
-      pendingMove.targetDeptId,
-      pendingMove.targetWeekNum,
-    )
+    const incomingTargetWeek = weeks.find((w) => w.weekNumber === pendingMove.targetWeekNum)
+    if (!incomingTargetWeek) return
 
-    // 2. Move displaced assignment to user-selected week (same department)
-    executeMoveAssignment(
-      displacedAssignment,
-      displacedAssignment.departmentId,
-      targetWeek.weekNumber,
-    )
+    displaceMutation.mutate({
+      id: pendingMove.assignment.id,
+      data: {
+        departmentId: pendingMove.targetDeptId,
+        startDate: incomingTargetWeek.startDate.toISOString(),
+        endDate: incomingTargetWeek.endDate.toISOString(),
+        displacedAssignmentId: displacedAssignment.id,
+        displacedDepartmentId: displacedAssignment.departmentId,
+        displacedStartDate: targetWeek.startDate.toISOString(),
+        displacedEndDate: targetWeek.endDate.toISOString(),
+      },
+    })
 
-    toast.success(t('toast.replacementSuccess'))
     clearPendingMove()
   }
 
@@ -227,24 +232,40 @@ export default function SchedulerPage() {
   return (
     <div className="flex flex-col gap-4 min-w-0 h-full overflow-hidden">
       <h1 className="text-2xl font-bold shrink-0">{t('title')}</h1>
-      <SchedulerToolbar />
-      <div className="flex items-center justify-between gap-4 flex-wrap shrink-0">
-        <SchedulerFilters />
-        <AssignmentLegend />
-      </div>
-      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <SchedulerGrid
-          departments={departments ?? []}
-          weeks={weeks}
-          gridData={gridData}
-          blockedCells={blockedCells}
-        />
-        <DragOverlay>
-          {draggedAssignment ? (
-            <GridDragOverlay assignment={draggedAssignment} />
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+      <Tabs defaultValue="scheduler" className="flex flex-col flex-1 min-h-0">
+        <TabsList className="shrink-0">
+          <TabsTrigger value="scheduler">{t('title')}</TabsTrigger>
+          {isAdmin && <TabsTrigger value="approvals">{t('approval.tab')}</TabsTrigger>}
+        </TabsList>
+
+        <TabsContent value="scheduler" className="flex flex-col gap-4 flex-1 min-h-0">
+          <SchedulerToolbar />
+          <div className="flex items-center justify-between gap-4 flex-wrap shrink-0">
+            <SchedulerFilters />
+            <AssignmentLegend />
+          </div>
+          <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+            <SchedulerGrid
+              departments={departments ?? []}
+              weeks={weeks}
+              gridData={gridData}
+              blockedCells={blockedCells}
+            />
+            <DragOverlay>
+              {draggedAssignment ? (
+                <GridDragOverlay assignment={draggedAssignment} />
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+        </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="approvals" className="flex-1 min-h-0 overflow-auto">
+            <ApprovalTab />
+          </TabsContent>
+        )}
+      </Tabs>
+
       {activeDialog === 'create' && <ManualAssignmentDialog />}
       {activeDialog === 'import' && <ExcelImportDialog />}
       {activeDialog === 'edit' && <EditAssignmentDialog />}

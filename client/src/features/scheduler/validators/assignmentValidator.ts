@@ -1,3 +1,4 @@
+import { startOfDay } from 'date-fns'
 import type {
   Assignment,
   BlockReason,
@@ -25,9 +26,9 @@ export function getAssignmentWeekNumber(
   assignment: Pick<Assignment, 'startDate'>,
   weeks: WeekDefinition[],
 ): number | undefined {
-  const assignmentStart = new Date(assignment.startDate)
+  const assignmentStart = startOfDay(new Date(assignment.startDate))
   const week = weeks.find(
-    (w) => assignmentStart >= w.startDate && assignmentStart <= w.endDate,
+    (w) => assignmentStart >= startOfDay(w.startDate) && assignmentStart <= startOfDay(w.endDate),
   )
   return week?.weekNumber
 }
@@ -62,6 +63,18 @@ export function validateDrop(
       type: 'blocked',
       reasonKey: 'grid.blocked.holiday',
       reasonParams: { name: reason.description },
+    }
+  }
+
+  // 2.5. Soft constraint blocks (always blocked, no admin override)
+  const softDeptKey = `soft:dept:${targetDeptId}:week:${targetWeekNum}`
+  const softGlobalKey = `soft:week:${targetWeekNum}`
+  const softReason = context.blockedCells.get(softDeptKey) ?? context.blockedCells.get(softGlobalKey)
+  if (softReason) {
+    return {
+      type: 'blocked',
+      reasonKey: 'grid.blocked.softConstraint',
+      reasonParams: { name: softReason.constraintName ?? softReason.description },
     }
   }
 
@@ -186,6 +199,12 @@ export function validateDrop(
       (a) => a.type === 'ELECTIVE',
     ).length
     if (electivesInWeek >= deptConstraint.electiveCapacity) {
+      if (context.isAdmin) {
+        return {
+          type: 'conflict_admin_override',
+          reasonKey: 'grid.blocked.electiveCapacityFull',
+        }
+      }
       return {
         type: 'blocked',
         reasonKey: 'grid.blocked.electiveCapacityFull',

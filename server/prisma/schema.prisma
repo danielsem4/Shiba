@@ -177,10 +177,12 @@ model Assignment {
   type          AssignmentType
   shiftType     ShiftType
   tutorName     String?
-  status        AssignmentStatus @default(PENDING)
-  createdById   Int
-  approvedById   Int?
-  academicYearId Int?
+  status          AssignmentStatus @default(PENDING)
+  rejectionReason String?
+  pendingMoveData Json?
+  createdById     Int
+  approvedById    Int?
+  academicYearId  Int?
 
   department   Department    @relation(fields: [departmentId], references: [id])
   university   University    @relation(fields: [universityId], references: [id])

@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { startOfDay } from 'date-fns'
 import type { Assignment, WeekDefinition, SchedulerFilters } from '../types/scheduler.types'
 
 /**
@@ -33,10 +34,10 @@ export function useGridData(
 
     // Map each assignment to its week based on startDate
     for (const assignment of filtered) {
-      const assignmentStart = new Date(assignment.startDate)
-      // Find which week this assignment belongs to
+      const assignmentStart = startOfDay(new Date(assignment.startDate))
+      // Find which week this assignment belongs to (normalize to local calendar dates)
       const week = weeks.find(
-        (w) => assignmentStart >= w.startDate && assignmentStart <= w.endDate,
+        (w) => assignmentStart >= startOfDay(w.startDate) && assignmentStart <= startOfDay(w.endDate),
       )
       if (!week) continue
 

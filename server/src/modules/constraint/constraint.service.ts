@@ -15,13 +15,14 @@ export class ConstraintService {
   // ─── Scheduler (existing) ──────────────────────────────────
 
   async getConstraintsForYears(years: number[]) {
-    const [departmentConstraints, ironConstraints, holidays] = await Promise.all([
+    const [departmentConstraints, ironConstraints, holidays, softConstraints] = await Promise.all([
       this.repository.findDepartmentConstraints(),
       this.repository.findIronConstraints(true),
       this.repository.findHolidays(years),
+      this.repository.findActiveSoftConstraintsWithDates(),
     ]);
 
-    return { departmentConstraints, ironConstraints, holidays };
+    return { departmentConstraints, ironConstraints, holidays, softConstraints };
   }
 
   // ─── Management (all constraint types) ─────────────────────

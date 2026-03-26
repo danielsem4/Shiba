@@ -29,13 +29,15 @@
       "crossDepartment": "התנגשות בין מחלקות — כבר משובץ ב{{name}} באותה משמרת",
       "electiveCapacityFull": "קיבולת אלקטיבים מלאה לשבוע זה",
       "shiftUnavailable": "משמרת זו אינה זמינה למחלקה זו",
-      "groupTooBig": "גודל הקבוצה ({{count}} סטודנטים) חורג מקיבולת המחלקה (מקסימום {{capacity}})"
+      "groupTooBig": "גודל הקבוצה ({{count}} סטודנטים) חורג מקיבולת המחלקה (מקסימום {{capacity}})",
+      "softConstraint": "אילוץ רך — {{name}}"
     }
   },
   "card": {
     "group": "קבוצתי",
     "elective": "אלקטיב",
-    "noStudents": "-"
+    "noStudents": "-",
+    "pendingApproval": "ממתין לאישור מנהל"
   },
   "status": {
     "approved": "מאושר",
@@ -136,6 +138,40 @@
     "studentRemoved": "סטודנט הוסר",
     "replacementSuccess": "השיבוצים הוחלפו בהצלחה",
     "overrideSuccess": "השיבוץ בוצע (דריסת מנהל)"
+  },
+  "approval": {
+    "tab": "אישורים",
+    "filterAll": "הכל",
+    "filterPending": "ממתינים",
+    "filterRejected": "נדחו",
+    "table": {
+      "department": "מחלקה",
+      "university": "מוסד אקדמי",
+      "dates": "תאריכים",
+      "shift": "משמרת",
+      "type": "סוג",
+      "status": "סטטוס",
+      "createdBy": "נוצר על ידי",
+      "actions": "פעולות"
+    },
+    "actions": {
+      "approve": "אשר",
+      "reject": "דחה",
+      "revertToPending": "החזר לממתין"
+    },
+    "rejectDialog": {
+      "title": "דחיית שיבוץ",
+      "reasonLabel": "סיבה (אופציונלי)",
+      "reasonPlaceholder": "הזן סיבת דחייה...",
+      "confirm": "דחה",
+      "cancel": "ביטול"
+    },
+    "toast": {
+      "approved": "השיבוץ אושר בהצלחה",
+      "rejected": "השיבוץ נדחה ונמחק",
+      "revertedToPending": "השיבוץ הוחזר לממתין"
+    },
+    "empty": "לא נמצאו שיבוצים"
   },
   "legend": {
     "title": "מקרא",

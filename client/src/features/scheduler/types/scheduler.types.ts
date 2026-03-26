@@ -2,6 +2,16 @@ export type AssignmentType = 'GROUP' | 'ELECTIVE'
 export type ShiftType = 'MORNING' | 'EVENING'
 export type AssignmentStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
 
+export interface PendingMoveData {
+  originalDeptId: number
+  originalStart: string
+  originalEnd: string
+  displacedId: number
+  displacedOrigDeptId: number
+  displacedOrigStart: string
+  displacedOrigEnd: string
+}
+
 export interface Assignment {
   id: number
   departmentId: number
@@ -12,11 +22,14 @@ export interface Assignment {
   type: AssignmentType
   shiftType: ShiftType
   status: AssignmentStatus
+  rejectionReason?: string | null
+  pendingMoveData?: PendingMoveData | null
   studentCount: number | null
   yearInProgram: number
   tutorName: string | null
   universityName: string
   departmentName: string
+  createdByName?: string | null
 }
 
 export interface Department {
@@ -41,7 +54,7 @@ export interface WeekDefinition {
 }
 
 export interface BlockReason {
-  type: 'holiday' | 'dateBlock' | 'capacityFull'
+  type: 'holiday' | 'dateBlock' | 'capacityFull' | 'softConstraint'
   description: string
   constraintName?: string
 }
@@ -79,10 +92,21 @@ export interface Student {
   email: string | null
 }
 
+export interface SoftConstraintData {
+  id: number
+  name: string
+  description: string
+  priority: number
+  departmentId: number | null
+  startDate: string
+  endDate: string
+}
+
 export interface ConstraintsResponse {
   departmentConstraints: DepartmentConstraintData[]
   ironConstraints: IronConstraintData[]
   holidays: Holiday[]
+  softConstraints: SoftConstraintData[]
 }
 
 export interface SchedulerFilters {
@@ -138,6 +162,20 @@ export interface AssignmentStudent {
 
 export interface AssignmentDetail extends Assignment {
   students: AssignmentStudent[]
+}
+
+export interface RejectAssignmentDto {
+  rejectionReason?: string
+}
+
+export interface DisplaceAssignmentDto {
+  departmentId: number
+  startDate: string
+  endDate: string
+  displacedAssignmentId: number
+  displacedDepartmentId: number
+  displacedStartDate: string
+  displacedEndDate: string
 }
 
 export interface CreateStudentDto {

@@ -73,6 +73,20 @@ export class ConstraintRepository implements IConstraintRepository {
 
   // ─── Soft Constraints ──────────────────────────────────────
 
+  async findActiveSoftConstraintsWithDates() {
+    return prisma.softConstraint.findMany({
+      where: {
+        isActive: true,
+        startDate: { not: null },
+        endDate: { not: null },
+      },
+      orderBy: { priority: 'desc' },
+      include: {
+        department: { select: { id: true, name: true } },
+      },
+    });
+  }
+
   async findAllSoftConstraints() {
     return prisma.softConstraint.findMany({
       orderBy: { priority: 'desc' },

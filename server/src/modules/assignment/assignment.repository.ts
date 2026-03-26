@@ -1,5 +1,6 @@
 import prisma from '../../lib/prisma';
 import type { Assignment } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import type {
   CreateAssignmentDto,
   UpdateAssignmentDto,
@@ -11,19 +12,44 @@ export interface AssignmentFilters {
   universityId?: number[];
   shiftType?: 'MORNING' | 'EVENING';
   yearInProgram?: number;
+  status?: 'PENDING' | 'APPROVED' | 'REJECTED' | ('PENDING' | 'APPROVED' | 'REJECTED')[];
+}
+
+export interface PendingMoveData {
+  originalDeptId: number;
+  originalStart: string;
+  originalEnd: string;
+  displacedId: number;
+  displacedOrigDeptId: number;
+  displacedOrigStart: string;
+  displacedOrigEnd: string;
+}
+
+export interface DisplaceParams {
+  departmentId: number;
+  startDate: Date;
+  endDate: Date;
+  displacedAssignmentId: number;
+  displacedDepartmentId: number;
+  displacedStartDate: Date;
+  displacedEndDate: Date;
 }
 
 export interface IAssignmentRepository {
   findByAcademicYear(academicYearId: number, filters?: AssignmentFilters): Promise<unknown[]>;
   findById(id: number): Promise<unknown | null>;
-  create(data: CreateAssignmentDto, createdById: number): Promise<Assignment>;
+  create(data: CreateAssignmentDto, createdById: number, status?: 'PENDING' | 'APPROVED', approvedById?: number): Promise<Assignment>;
   update(id: number, data: UpdateAssignmentDto): Promise<Assignment>;
-  move(id: number, departmentId: number, startDate: Date, endDate: Date): Promise<Assignment>;
+  move(id: number, departmentId: number, startDate: Date, endDate: Date, status?: 'PENDING' | 'APPROVED', approvedById?: number): Promise<Assignment>;
   remove(id: number): Promise<Assignment>;
   bulkCreate(data: CreateAssignmentDto[], createdById: number): Promise<{ count: number }>;
   addStudent(assignmentId: number, studentData: AddStudentDto): Promise<unknown>;
   removeStudent(assignmentId: number, studentId: number): Promise<unknown>;
   bulkAddStudents(assignmentId: number, students: AddStudentDto[]): Promise<unknown[]>;
+  approve(id: number, approvedById: number): Promise<Assignment>;
+  reject(id: number, rejectionReason?: string): Promise<Assignment>;
+  displace(incomingId: number, params: DisplaceParams, status: 'PENDING' | 'APPROVED', pendingMoveData?: PendingMoveData, approvedById?: number): Promise<Assignment>;
+  rejectAndRevert(id: number, pendingMoveData: PendingMoveData): Promise<void>;
 }
 
 export class AssignmentRepository implements IAssignmentRepository {
@@ -39,12 +65,16 @@ export class AssignmentRepository implements IAssignmentRepository {
     if (filters?.yearInProgram) {
       where.yearInProgram = filters.yearInProgram;
     }
+    if (filters?.status) {
+      where.status = Array.isArray(filters.status) ? { in: filters.status } : filters.status;
+    }
 
     return prisma.assignment.findMany({
       where,
       include: {
         university: { select: { name: true } },
         department: { select: { name: true } },
+        createdBy: { select: { name: true, email: true } },
       },
       orderBy: { startDate: 'asc' },
     });
@@ -65,7 +95,7 @@ export class AssignmentRepository implements IAssignmentRepository {
     });
   }
 
-  async create(data: CreateAssignmentDto, createdById: number): Promise<Assignment> {
+  async create(data: CreateAssignmentDto, createdById: number, status?: 'PENDING' | 'APPROVED', approvedById?: number): Promise<Assignment> {
     return prisma.assignment.create({
       data: {
         departmentId: data.departmentId,
@@ -79,6 +109,8 @@ export class AssignmentRepository implements IAssignmentRepository {
         yearInProgram: data.yearInProgram,
         tutorName: data.tutorName ?? null,
         createdById,
+        ...(status && { status }),
+        ...(approvedById && { approvedById }),
       },
       include: {
         university: { select: { name: true } },
@@ -98,10 +130,16 @@ export class AssignmentRepository implements IAssignmentRepository {
     });
   }
 
-  async move(id: number, departmentId: number, startDate: Date, endDate: Date): Promise<Assignment> {
+  async move(id: number, departmentId: number, startDate: Date, endDate: Date, status?: 'PENDING' | 'APPROVED', approvedById?: number): Promise<Assignment> {
     return prisma.assignment.update({
       where: { id },
-      data: { departmentId, startDate, endDate },
+      data: {
+        departmentId,
+        startDate,
+        endDate,
+        ...(status ? { status, pendingMoveData: Prisma.DbNull } : {}),
+        ...(approvedById ? { approvedById } : {}),
+      },
       include: {
         university: { select: { name: true } },
         department: { select: { name: true } },
@@ -191,5 +229,93 @@ export class AssignmentRepository implements IAssignmentRepository {
       results.push(result);
     }
     return results;
+  }
+
+  async approve(id: number, approvedById: number): Promise<Assignment> {
+    return prisma.assignment.update({
+      where: { id },
+      data: { status: 'APPROVED', approvedById, rejectionReason: null, pendingMoveData: Prisma.DbNull },
+      include: {
+        university: { select: { name: true } },
+        department: { select: { name: true } },
+        createdBy: { select: { name: true, email: true } },
+      },
+    });
+  }
+
+  async reject(id: number, rejectionReason?: string): Promise<Assignment> {
+    return prisma.assignment.update({
+      where: { id },
+      data: { status: 'REJECTED', rejectionReason: rejectionReason ?? null, approvedById: null },
+      include: {
+        university: { select: { name: true } },
+        department: { select: { name: true } },
+        createdBy: { select: { name: true, email: true } },
+      },
+    });
+  }
+
+  async displace(
+    incomingId: number,
+    params: DisplaceParams,
+    status: 'PENDING' | 'APPROVED',
+    pendingMoveData?: PendingMoveData,
+    approvedById?: number,
+  ): Promise<Assignment> {
+    const [incoming] = await prisma.$transaction([
+      prisma.assignment.update({
+        where: { id: incomingId },
+        data: {
+          departmentId: params.departmentId,
+          startDate: params.startDate,
+          endDate: params.endDate,
+          status,
+          ...(pendingMoveData ? { pendingMoveData: pendingMoveData as unknown as Prisma.InputJsonValue } : { pendingMoveData: Prisma.DbNull }),
+          ...(approvedById ? { approvedById } : {}),
+        },
+        include: {
+          university: { select: { name: true } },
+          department: { select: { name: true } },
+        },
+      }),
+      prisma.assignment.update({
+        where: { id: params.displacedAssignmentId },
+        data: {
+          departmentId: params.displacedDepartmentId,
+          startDate: params.displacedStartDate,
+          endDate: params.displacedEndDate,
+          status,
+        },
+      }),
+    ]);
+    return incoming;
+  }
+
+  async rejectAndRevert(id: number, moveData: PendingMoveData): Promise<void> {
+    const displaced = await prisma.assignment.findUnique({
+      where: { id: moveData.displacedId },
+      select: { id: true },
+    });
+
+    const operations: Prisma.PrismaPromise<unknown>[] = [
+      prisma.assignment.delete({ where: { id } }),
+    ];
+
+    // Revert displaced assignment to original position if it still exists
+    if (displaced) {
+      operations.push(
+        prisma.assignment.update({
+          where: { id: moveData.displacedId },
+          data: {
+            departmentId: moveData.displacedOrigDeptId,
+            startDate: new Date(moveData.displacedOrigStart),
+            endDate: new Date(moveData.displacedOrigEnd),
+            status: 'APPROVED',
+          },
+        }),
+      );
+    }
+
+    await prisma.$transaction(operations);
   }
 }

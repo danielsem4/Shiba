@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { useDraggable } from '@dnd-kit/core'
-import { CSS } from '@dnd-kit/utilities'
-import { Sun, Moon } from 'lucide-react'
+import { Sun, Moon, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useIsAdmin } from '@/hooks/useIsAdmin'
 import { useSchedulerStore } from '../../stores/schedulerStore'
 import type { Assignment } from '../../types/scheduler.types'
 
@@ -25,15 +25,14 @@ interface AssignmentCardProps {
 
 export function AssignmentCard({ assignment }: AssignmentCardProps) {
   const { t } = useTranslation('scheduler')
+  const isAdmin = useIsAdmin()
+  const isPending = assignment.status === 'PENDING'
 
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: assignment.id,
     data: { assignment },
+    disabled: false,
   })
-
-  const style = transform
-    ? { transform: CSS.Translate.toString(transform) }
-    : undefined
 
   const universityColor =
     UNIVERSITY_COLORS[assignment.universityId % UNIVERSITY_COLORS.length]
@@ -43,7 +42,7 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
 
   const handleClick = (e: React.MouseEvent) => {
     // Don't open dialog if we're dragging
-    if (transform) return
+    if (isDragging) return
     console.log('Card clicked:', assignment.id, assignment.universityName)
     e.stopPropagation()
     useSchedulerStore.getState().openDialog('edit', assignment.id)
@@ -52,16 +51,14 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
   return (
     <div
       ref={setNodeRef}
-      style={{
-        ...style,
-        borderInlineStartColor: universityColor,
-      }}
+      style={{ borderInlineStartColor: universityColor }}
       className={cn(
         'rounded-lg border-s-4 p-2.5 text-sm cursor-pointer select-none',
         'transition-shadow hover:shadow-md',
         assignment.status === 'APPROVED' && 'bg-white opacity-100 border border-s-4 border-border',
         assignment.status === 'PENDING' && 'bg-white/90 opacity-85 border border-dashed border-s-4 border-border',
         assignment.status === 'REJECTED' && 'bg-white/70 opacity-50 border border-s-4 border-border',
+        isDragging && 'opacity-0 pointer-events-none',
       )}
       onClick={handleClick}
       {...attributes}
@@ -76,12 +73,19 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
         >
           {assignment.universityName}
         </span>
-        <span
-          className="shrink-0 rounded-full px-1.5 py-0.5 text-xs font-medium text-white"
-          style={{ backgroundColor: typeBadgeBg }}
-        >
-          {isGroup ? t('card.group') : t('card.elective')}
-        </span>
+        <div className="flex items-center gap-1 shrink-0">
+          {isPending && (
+            <span title={t('card.pendingApproval')}>
+              <Clock className="size-3.5 text-amber-500" />
+            </span>
+          )}
+          <span
+            className="rounded-full px-1.5 py-0.5 text-xs font-medium text-white"
+            style={{ backgroundColor: typeBadgeBg }}
+          >
+            {isGroup ? t('card.group') : t('card.elective')}
+          </span>
+        </div>
       </div>
 
       <div className="flex items-center justify-between text-[#1E2A5E]/70">

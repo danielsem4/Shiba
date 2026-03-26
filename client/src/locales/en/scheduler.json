@@ -29,13 +29,15 @@
       "crossDepartment": "Cross-department conflict — already assigned in {{name}} this shift",
       "electiveCapacityFull": "Elective capacity full for this week",
       "shiftUnavailable": "This shift is not available for this department",
-      "groupTooBig": "Group size ({{count}} students) exceeds department capacity ({{capacity}} max)"
+      "groupTooBig": "Group size ({{count}} students) exceeds department capacity ({{capacity}} max)",
+      "softConstraint": "Soft constraint — {{name}}"
     }
   },
   "card": {
     "group": "Group",
     "elective": "Elective",
-    "noStudents": "-"
+    "noStudents": "-",
+    "pendingApproval": "Pending admin approval"
   },
   "status": {
     "approved": "Approved",
@@ -136,6 +138,40 @@
     "studentRemoved": "Student removed",
     "replacementSuccess": "Assignments swapped successfully",
     "overrideSuccess": "Assignment placed (admin override)"
+  },
+  "approval": {
+    "tab": "Approvals",
+    "filterAll": "All",
+    "filterPending": "Pending",
+    "filterRejected": "Rejected",
+    "table": {
+      "department": "Department",
+      "university": "University",
+      "dates": "Dates",
+      "shift": "Shift",
+      "type": "Type",
+      "status": "Status",
+      "createdBy": "Created By",
+      "actions": "Actions"
+    },
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "revertToPending": "Revert to Pending"
+    },
+    "rejectDialog": {
+      "title": "Reject Assignment",
+      "reasonLabel": "Reason (optional)",
+      "reasonPlaceholder": "Enter rejection reason...",
+      "confirm": "Reject",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "approved": "Assignment approved successfully",
+      "rejected": "Assignment rejected and removed",
+      "revertedToPending": "Assignment reverted to pending"
+    },
+    "empty": "No assignments found"
   },
   "legend": {
     "title": "Legend",
