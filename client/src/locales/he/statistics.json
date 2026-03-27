@@ -1,0 +1,36 @@
+{
+  "pageTitle": "סטטיסטיקות",
+  "timeframe": {
+    "weekly": "שבועי",
+    "yearly": "שנתי"
+  },
+  "charts": {
+    "departmentCapacity": "קיבולת מחלקות",
+    "departmentUtilization": "ניצולת מחלקות",
+    "studentEnrollment": "רישום סטודנטים",
+    "utilizationGauges": "אחוז ניצולת"
+  },
+  "labels": {
+    "morningCapacity": "קיבולת בוקר",
+    "eveningCapacity": "קיבולת ערב",
+    "electiveCapacity": "קיבולת אלקטיב",
+    "morningActual": "בוקר בפועל",
+    "eveningActual": "ערב בפועל",
+    "remaining": "נותר",
+    "students": "סטודנטים",
+    "utilization": "ניצולת",
+    "departments": "מחלקות",
+    "universities": "אוניברסיטאות",
+    "percentage": "{{value}}%"
+  },
+  "export": {
+    "download": "ייצוא לאקסל",
+    "success": "יוצא בהצלחה"
+  },
+  "academicYear": "שנה אקדמית",
+  "noData": "אין נתוני סטטיסטיקה להצגה",
+  "weekSelector": {
+    "label": "בחר שבוע",
+    "weekRange": "שבוע {{number}}: {{start}} – {{end}}"
+  }
+}

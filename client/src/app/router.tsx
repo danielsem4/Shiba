@@ -10,6 +10,7 @@ import { SettingsPage } from '@/features/settings'
 import { SchedulerPage } from '@/features/scheduler'
 import { ConstraintsPage } from '@/features/constraints'
 import { CoordinatorsPage } from '@/features/academic-coordinators'
+import { StatisticsPage } from '@/features/statistics'
 import { NotFoundPage } from '@/components/shared/NotFoundPage'
 
 export const router = createBrowserRouter([
@@ -59,6 +60,10 @@ export const router = createBrowserRouter([
                 <ConstraintsPage />
               </Suspense>
             ),
+          },
+          {
+            path: '/statistics',
+            element: <StatisticsPage />,
           },
           {
             path: '/coordinators',

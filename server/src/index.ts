@@ -13,6 +13,7 @@ import { departmentRouter } from './modules/department/department.routes';
 import { assignmentRouter } from './modules/assignment/assignment.routes';
 import { constraintRouter } from './modules/constraint/constraint.routes';
 import { coordinatorRouter } from './modules/coordinator/coordinator.routes';
+import { statisticsRouter } from './modules/statistics/statistics.routes';
 import { errorHandler } from './shared/middlewares/errorHandler';
 
 const app = express();
@@ -41,6 +42,7 @@ app.use('/api/departments', departmentRouter);
 app.use('/api/assignments', assignmentRouter);
 app.use('/api/constraints', constraintRouter);
 app.use('/api/coordinators', coordinatorRouter);
+app.use('/api/statistics', statisticsRouter);
 
 // Error handler (must be last)
 app.use(errorHandler);

@@ -16,18 +16,20 @@ import heSettings from '@/locales/he/settings.json'
 import heScheduler from '@/locales/he/scheduler.json'
 import heConstraints from '@/locales/he/constraints.json'
 import heCoordinators from '@/locales/he/coordinators.json'
+import enStatistics from '@/locales/en/statistics.json'
+import heStatistics from '@/locales/he/statistics.json'
 
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources: {
-      en: { common: enCommon, auth: enAuth, home: enHome, settings: enSettings, scheduler: enScheduler, constraints: enConstraints, coordinators: enCoordinators },
-      he: { common: heCommon, auth: heAuth, home: heHome, settings: heSettings, scheduler: heScheduler, constraints: heConstraints, coordinators: heCoordinators },
+      en: { common: enCommon, auth: enAuth, home: enHome, settings: enSettings, scheduler: enScheduler, constraints: enConstraints, coordinators: enCoordinators, statistics: enStatistics },
+      he: { common: heCommon, auth: heAuth, home: heHome, settings: heSettings, scheduler: heScheduler, constraints: heConstraints, coordinators: heCoordinators, statistics: heStatistics },
     },
     fallbackLng: 'en',
     defaultNS: 'common',
-    ns: ['common', 'auth', 'home', 'settings', 'scheduler', 'constraints', 'coordinators'],
+    ns: ['common', 'auth', 'home', 'settings', 'scheduler', 'constraints', 'coordinators', 'statistics'],
     interpolation: {
       escapeValue: false,
     },

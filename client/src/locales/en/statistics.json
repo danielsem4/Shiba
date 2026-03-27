@@ -1,0 +1,36 @@
+{
+  "pageTitle": "Statistics",
+  "timeframe": {
+    "weekly": "Weekly",
+    "yearly": "Yearly"
+  },
+  "charts": {
+    "departmentCapacity": "Department Capacities",
+    "departmentUtilization": "Department Utilization",
+    "studentEnrollment": "Student Enrollment",
+    "utilizationGauges": "Utilization Rate"
+  },
+  "labels": {
+    "morningCapacity": "Morning Capacity",
+    "eveningCapacity": "Evening Capacity",
+    "electiveCapacity": "Elective Capacity",
+    "morningActual": "Morning Actual",
+    "eveningActual": "Evening Actual",
+    "remaining": "Remaining",
+    "students": "Students",
+    "utilization": "Utilization",
+    "departments": "Departments",
+    "universities": "Universities",
+    "percentage": "{{value}}%"
+  },
+  "export": {
+    "download": "Export to Excel",
+    "success": "Exported successfully"
+  },
+  "academicYear": "Academic Year",
+  "noData": "No statistics data available",
+  "weekSelector": {
+    "label": "Select week",
+    "weekRange": "Week {{number}}: {{start}} – {{end}}"
+  }
+}
