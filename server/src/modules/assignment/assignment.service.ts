@@ -13,7 +13,7 @@ import type {
   SmartImportExecuteDto,
 } from './assignment.schema';
 import { ConstraintEngine, validateStudentLink } from './validation/constraintEngine';
-import { ConstraintValidationError } from '../../shared/errors/ConstraintValidationError';
+import { ConstraintValidationError, type ConstraintViolation } from '../../shared/errors/ConstraintValidationError';
 import { ImportValidationService } from './import/importService';
 import type { ImportValidationResult } from './import/importTypes';
 import prisma from '../../lib/prisma';
@@ -125,7 +125,31 @@ export class AssignmentService {
   }
 
   async importStudents(assignmentId: number, dto: ImportStudentsDto) {
-    await this.getById(assignmentId);
+    const assignment = await this.getById(assignmentId) as {
+      startDate: Date; endDate: Date; shiftType: 'MORNING' | 'EVENING';
+    };
+
+    // Validate all students for double-booking before adding any
+    const allViolations: ConstraintViolation[] = [];
+    for (const studentData of dto.students) {
+      const existing = await this.repository.findStudentByNationalId?.(studentData.nationalId);
+      if (existing) {
+        const violations = await validateStudentLink(
+          existing.id, assignmentId, assignment.startDate, assignment.endDate, assignment.shiftType,
+        );
+        allViolations.push(
+          ...violations.map(v => ({
+            ...v,
+            params: { ...v.params, studentName: `${studentData.firstName} ${studentData.lastName}` },
+          })),
+        );
+      }
+    }
+
+    if (allViolations.length > 0) {
+      throw new ConstraintValidationError(allViolations);
+    }
+
     return this.repository.bulkAddStudents(assignmentId, dto.students);
   }
 
