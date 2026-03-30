@@ -56,7 +56,7 @@ export function AppLayout() {
           <SidebarTrigger className="-ms-1" />
         </header>
 
-        <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden bg-background p-6">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-auto bg-background p-6">
           <Outlet />
         </div>
       </SidebarInset>
