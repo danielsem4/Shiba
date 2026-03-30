@@ -67,7 +67,7 @@ export function useBlockedCells(
       }
     }
 
-    // Soft constraint warnings (not hard blocks — these allow drops)
+    // Soft constraint blocks (treated as hard blocks — cells are disabled)
     if (constraints.softConstraints) {
       for (const sc of constraints.softConstraints) {
         const scStart = new Date(sc.startDate)
@@ -78,7 +78,7 @@ export function useBlockedCells(
               const key = `soft:dept:${sc.departmentId}:week:${week.weekNumber}`
               if (!blocked.has(key)) {
                 blocked.set(key, {
-                  type: 'warning',
+                  type: 'softConstraint',
                   description: sc.description,
                   constraintName: sc.name,
                 })
@@ -87,7 +87,7 @@ export function useBlockedCells(
               const key = `soft:week:${week.weekNumber}`
               if (!blocked.has(key)) {
                 blocked.set(key, {
-                  type: 'warning',
+                  type: 'softConstraint',
                   description: sc.description,
                   constraintName: sc.name,
                 })

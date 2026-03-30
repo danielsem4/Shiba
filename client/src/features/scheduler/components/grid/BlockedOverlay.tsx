@@ -40,7 +40,7 @@ const blockConfig: Record<string, {
   },
   softConstraint: {
     icon: ShieldAlert,
-    bgClass: 'bg-[#fff7ed] border-dashed border-orange-300',
+    bgClass: 'bg-[#f1f5f9] border-dashed border-slate-300',
     textKey: 'grid.blocked.softConstraint',
   },
 }

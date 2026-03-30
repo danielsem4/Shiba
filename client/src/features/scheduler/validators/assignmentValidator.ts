@@ -80,14 +80,14 @@ export function validateDrop(
     }
   }
 
-  // 2.5. Soft constraint checks (warnings only, not hard blocks)
+  // 2.5. Soft constraint checks (hard blocks — cells are disabled)
   const softDeptKey = `soft:dept:${targetDeptId}:week:${targetWeekNum}`
   const softGlobalKey = `soft:week:${targetWeekNum}`
   const softReason = context.blockedCells.get(softDeptKey) ?? context.blockedCells.get(softGlobalKey)
   if (softReason) {
     return {
-      type: 'warning',
-      reasonKey: 'grid.warning.softConstraint',
+      type: 'blocked',
+      reasonKey: 'grid.blocked.softConstraint',
       reasonParams: { name: softReason.constraintName ?? softReason.description },
     }
   }

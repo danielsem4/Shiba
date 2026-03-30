@@ -281,7 +281,12 @@ export class ImportValidationService {
         },
       });
       if (softConstraints.length > 0) {
-        warnings.push(...softConstraints.map(sc => sc.name));
+        return {
+          rowIndex,
+          status: 'failed' as const,
+          failureReason: 'validation.softConstraintBlocked',
+          failureParams: { name: softConstraints.map(sc => sc.name).join(', ') },
+        };
       }
 
       // Success — track virtual state for GROUP

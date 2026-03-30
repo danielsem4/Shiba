@@ -24,6 +24,7 @@ export function GridCell({
   const { setNodeRef, isOver } = useDroppable({
     id: `cell-${departmentId}-${weekNumber}`,
     data: { departmentId, weekNumber },
+    disabled: !!isHardBlock,
   })
 
   return (
