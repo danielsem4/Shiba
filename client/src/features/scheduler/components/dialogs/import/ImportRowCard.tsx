@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CheckCircle2, AlertTriangle, XCircle, AlertCircle, Pencil, Trash2, Loader2 } from 'lucide-react'
+import { CheckCircle2, AlertTriangle, XCircle, AlertCircle, Pencil, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { ImportRowResult, ImportAction, SmartImportRow } from '../../../types/scheduler.types'
 import { ImportWeekPicker } from './ImportWeekPicker'
-import { ImportRowEditForm } from './ImportRowEditForm'
+import { ImportRowEditDialog } from './ImportRowEditDialog'
 
 interface ImportRowCardProps {
   row: ImportRowResult
@@ -288,22 +288,15 @@ export function ImportRowCard({
             </div>
           )}
 
-          {/* Inline edit form */}
-          {isEditing && originalRow && (
-            <div className="mt-2">
-              {isRevalidating && (
-                <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
-                  <Loader2 className="size-3 animate-spin" />
-                  {t('dialogs.smartImport.revalidating')}
-                </div>
-              )}
-              <ImportRowEditForm
-                initialData={originalRow}
-                onSave={handleSaveEdit}
-                onCancel={() => setIsEditing(false)}
-                isLoading={isRevalidating}
-              />
-            </div>
+          {/* Edit dialog */}
+          {originalRow && (
+            <ImportRowEditDialog
+              open={isEditing}
+              initialData={originalRow}
+              onSave={handleSaveEdit}
+              onCancel={() => setIsEditing(false)}
+              isLoading={isRevalidating}
+            />
           )}
         </div>
       </div>
