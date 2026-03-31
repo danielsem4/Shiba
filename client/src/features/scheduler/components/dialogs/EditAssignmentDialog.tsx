@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
+import { CalendarDropdown } from '@/components/ui/calendar-dropdown'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Separator } from '@/components/ui/separator'
 
@@ -44,14 +45,18 @@ import { useUpdateAssignment } from '../../hooks/useUpdateAssignment'
 import { useDeleteAssignment } from '../../hooks/useDeleteAssignment'
 import { useDepartments } from '../../hooks/useDepartments'
 import { useUniversities } from '../../hooks/useUniversities'
+import { useAcademicYears } from '../../hooks/useAcademicYears'
 import { useSchedulerStore } from '../../stores/schedulerStore'
 import { StudentListSection } from './StudentListSection'
 import type { Student } from '../../types/scheduler.types'
 
 export function EditAssignmentDialog() {
   const { t } = useTranslation('scheduler')
-  const { activeDialog, editingAssignmentId, closeDialog } = useSchedulerStore()
+  const { activeDialog, editingAssignmentId, closeDialog, academicYearId } = useSchedulerStore()
   const isOpen = activeDialog === 'edit'
+
+  const { data: academicYears } = useAcademicYears()
+  const currentYear = academicYears?.find((y) => y.id === academicYearId)
 
   const { data: assignment } = useQuery({
     queryKey: ['scheduler', 'assignment', editingAssignmentId],
@@ -273,6 +278,10 @@ export function EditAssignmentDialog() {
                               setStartDateOpen(false)
                             }}
                             disabled={(date) => date.getDay() !== 0}
+                            captionLayout="dropdown"
+                            startMonth={currentYear ? new Date(currentYear.startDate) : undefined}
+                            endMonth={currentYear ? new Date(currentYear.endDate) : undefined}
+                            components={{ Dropdown: CalendarDropdown }}
                           />
                         </PopoverContent>
                       </Popover>
@@ -311,6 +320,10 @@ export function EditAssignmentDialog() {
                               setEndDateOpen(false)
                             }}
                             disabled={(date) => date.getDay() !== 4}
+                            captionLayout="dropdown"
+                            startMonth={currentYear ? new Date(currentYear.startDate) : undefined}
+                            endMonth={currentYear ? new Date(currentYear.endDate) : undefined}
+                            components={{ Dropdown: CalendarDropdown }}
                           />
                         </PopoverContent>
                       </Popover>
